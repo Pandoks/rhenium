@@ -1,4 +1,5 @@
 import re
+import time
 from playwright.sync_api import sync_playwright
 
 
@@ -6,6 +7,8 @@ def get(url):
     print(f"---------- Getting {url} ----------")
 
     with sync_playwright() as playwright:
+        property_info = {}
+
         chromium = playwright.chromium
         browser = chromium.launch(headless=False)
         page = browser.new_page()
@@ -15,6 +18,10 @@ def get(url):
         price_history_element = page.locator('h2:text-is("Price history")').locator(
             "xpath=.."
         )
+        if not price_history_element.count():
+            price_history_element = page.locator('h5:text-is("Price history")').locator(
+                "xpath=.."
+            )
         button = price_history_element.locator('span:text-is("Show more")').locator(
             "xpath=.."
         )
@@ -24,6 +31,10 @@ def get(url):
         tax_history_element = page.locator('h2:text-is("Public tax history")').locator(
             "xpath=.."
         )
+        if not tax_history_element.count():
+            tax_history_element = page.locator(
+                'h5:text-is("Public tax history")'
+            ).locator("xpath=..")
         button = tax_history_element.locator('span:text-is("Show more")').locator(
             "xpath=.."
         )
@@ -59,13 +70,13 @@ def get(url):
             raise Exception(f"Couldn't figure out the status of the listing '{url}'")
         else:
             status = status.inner_text()
-        print("status:", status)
+        property_info["status"] = status
 
         price = None
         price_element = page.query_selector('span[data-testid="price"]')
         if price_element:
             price = price_element.inner_text().replace("$", "").replace(",", "")
-        print("price:", price)
+        property_info["price"] = price
 
         address = None
         city = None
@@ -80,10 +91,10 @@ def get(url):
             city = re.sub(r"[^a-zA-Z]", "", address_element_text[1])
             state = address_element_text[2].split(" ")[1]
             zip = address_element_text[2].split(" ")[2]
-        print("address:", address)
-        print("city:", city)
-        print("state:", state)
-        print("zip:", zip)
+        property_info["address"] = address
+        property_info["city"] = city
+        property_info["state"] = state
+        property_info["zip"] = zip
 
         price_history = []
         for price_rows in (
@@ -100,15 +111,20 @@ def get(url):
                 .replace("$", "")
                 .replace(",", "")
             )
-            price_history.append([price_date, price_event, price_price])
-        print("price history:", price_history)
+            price_history.append(
+                {"date": price_date, "event": price_event, "price": price_price}
+            )
+        property_info["price_history"] = price_history
 
         tax_history = []
         for tax_rows in (
-            tax_history_element.locator("tbody").locator("tr[id]").element_handles()
+            tax_history_element.locator("tbody").locator("tr").element_handles()
         ):
-            tax_columns = tax_rows.query_selector_all("td")
-            tax_year = tax_columns[0].query_selector("span").inner_text()
+            tax_columns = []
+            if not isListing:
+                tax_columns.append(tax_rows.query_selector("th"))
+            tax_columns.extend(tax_rows.query_selector_all("td"))
+            tax_year = tax_columns[0].inner_text()
             property_taxes = (
                 tax_columns[1]
                 .query_selector("span")
@@ -127,8 +143,14 @@ def get(url):
                 .replace(",", "")
                 .split(" ")[0]
             )
-            tax_history.append([tax_year, property_taxes, tax_assessment])
-        print("tax history:", tax_history)
+            tax_history.append(
+                {
+                    "year": tax_year,
+                    "taxes": property_taxes,
+                    "assessment": tax_assessment,
+                }
+            )
+        property_info["tax_history"] = tax_history
 
         fact_locators = {
             "bedrooms": 'span:has-text("Bedrooms")',
@@ -137,7 +159,7 @@ def get(url):
             "three_fourths_bathrooms": 'span:has-text("3/4 bathrooms")',
             "half_bathrooms": 'span:has-text("1/2 bathrooms")',
             "one_fourths_bathrooms": 'span:has-text("1/4 bathrooms")',
-            "year_built": 'span:has-text("Year built")',
+            "year_built": 'span:text-matches("Year built: ")',
             "lot_size": 'span:has-text("Lot size")',
             "lot_features": 'span:has-text("Lot features")',
             "home_type": 'span:has-text("Home type")',
@@ -224,14 +246,16 @@ def get(url):
                 continue
 
             fact_info[key] = element_text
-        print(fact_info)
+        property_info["details"] = fact_info
 
         browser.close()
+        print(property_info)
 
-    # print(price_history_element)
 
-
-get("https://www.zillow.com/homedetails/19615387_zpid/")
+# get("https://www.zillow.com/homedetails/19615387_zpid/")
 # get(
-#     "https://www.zillow.com/homedetails/875-Cotati-Trl-5-Sunnyvale-CA-94085/300481656_zpid/"
+#     "https://www.zillow.com/homedetails/674-Picasso-Trl-Sunnyvale-CA-94087/19547454_zpid/"
 # )
+get(
+    "https://www.zillow.com/homes/875-Cotati-Trl-.num.5-Sunnyvale,-CA-94085_rb/300481656_zpid/"
+)
