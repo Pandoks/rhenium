@@ -1,5 +1,4 @@
 import re
-import time
 from playwright.sync_api import sync_playwright
 
 
@@ -62,11 +61,11 @@ def get(url):
             status = status.inner_text()
         print("status:", status)
 
-        price = None
-        price_element = page.query_selector('span[data-testid="price"]')
-        if price_element:
-            price = price_element.inner_text().replace("$", "").replace(",", "")
-        print("price:", price)
+        # price = None
+        # price_element = page.query_selector('span[data-testid="price"]')
+        # if price_element:
+        #     price = price_element.inner_text().replace("$", "").replace(",", "")
+        # print("price:", price)
 
         address = None
         city = None
@@ -131,16 +130,51 @@ def get(url):
             tax_history.append([tax_year, property_taxes, tax_assessment])
         print("tax history:", tax_history)
 
-        building_type = None
-        year_built = None
-        bedrooms = None
-        bathrooms = None
-        lot_size = None
-        print(facts_element.locator('span:has-text("Bedrooms")').inner_text())
-        print(facts_element.locator('span:text-matches("Bathrooms")').inner_text())
-        print(facts_element.locator('span:has-text("Year built")').inner_text())
-        print(facts_element.locator('span:has-text("Home type")').inner_text())
-        print(facts_element.locator('span:has-text("Lot size")').inner_text())
+        fact_locators = {
+            "bedrooms": 'span:has-text("Bedrooms")',
+            "bathrooms": 'span:text-matches("Bathrooms")',
+            "full_bathrooms": 'span:has-text("Full bathrooms")',
+            "three_fourths_bathrooms": 'span:has-text("3/4 bathrooms")',
+            "half_bathrooms": 'span:has-text("1/2 bathrooms")',
+            "one_fourths_bathrooms": 'span:has-text("1/4 bathrooms")',
+            "year_built": 'span:has-text("Year built")',
+            "lot_size": 'span:has-text("Lot size")',
+            "home_type": 'span:has-text("Home type")',
+            "stories": 'span:has-text("Stories")',
+            "size": 'span:has-text("interior livable area")',
+            "parking": 'span:has-text("parking features")',
+            "parking_spaces": 'span:has-text("total spaces")',
+            "garage_spaces": 'span:has-text("garage spaces")',
+            "covered_spaces": 'span:has-text("covered spaces")',
+            "hoa": 'span:has-text("has HOA")',
+            "hoa_fee": 'span:has-text("HOA fee")',
+        }
+        fact_info = {}
+        for key, fact_locator in fact_locators.items():
+            element = facts_element.locator(fact_locator)
+            if not element.count():
+                fact_info[key] = None
+                continue
+
+            element_text = element.inner_text().split(": ")[1]
+
+            if element_text == "Yes":
+                fact_info[key] = True
+                continue
+            elif element_text == "No":
+                fact_info[key] = False
+                continue
+
+            if re.search(r"\d", element_text):
+                fact_info[key] = element_text.replace(",", "").replace("$", "")
+                continue
+            elif element_text.find(", ") != -1:
+                element_split_text = element_text.split(", ")
+                fact_info[key] = element_split_text
+                continue
+
+            fact_info[key] = element_text
+        print(fact_info)
 
         browser.close()
 
