@@ -46,25 +46,48 @@ def get(url):
             city = re.sub(r"[^a-zA-Z]", "", address_element_text[1])
             state = address_element_text[2].split(" ")[1]
             zip = address_element_text[2].split(" ")[2]
-        print(address_element)
         print("address:", address)
         print("city:", city)
         print("state:", state)
         print("zip:", zip)
 
-        # price_history_table_element = None
-        # if isListing:
-        #     price_history_table_element = page.query_selector(
-        #         "table.StyledTableComponents__StyledTable-fshdp-8-100-2__sc-shu7eb-2.jaWGxh"
-        #     )
-        # else:
-        #     price_history_table_element = page.query_selector(
-        #         "table.StyledTableComponents__StyledTable-sc-f00yqe-2 kNXiqz"
-        #     )
-        # price_history_table_element = page.query_selector(
-        #     "table.StyledTableComponents__StyledTable-fshdp-8-100-2__sc-shu7eb-2.jaWGxh"
-        # )
-        # print(price_history_table_element)
+        price_history_table_element = None
+        if isListing:
+            price_history_table_element = page.query_selector(
+                "table.StyledTableComponents__StyledTable-fshdp-8-100-2__sc-shu7eb-2.jaWGxh"
+            )
+        else:
+            price_history_table_element = page.query_selector(
+                "table.StyledTableComponents__StyledTable-sc-f00yqe-2 kNXiqz"
+            )
+        if price_history_table_element:
+            price_history_table_element = price_history_table_element.query_selector(
+                "tbody"
+            )
+        price_history = []
+        if price_history_table_element:
+            price_history_rows = price_history_table_element.query_selector_all(
+                "tr[id]"
+            )
+            for price_rows in price_history_rows:
+                price_history_columns = price_rows.query_selector_all("td")
+                price_date = (
+                    price_history_columns[0].query_selector("span").inner_text()
+                )
+                price_event = (
+                    price_history_columns[1].query_selector("span").inner_text()
+                )
+                price_price = (
+                    price_history_columns[2]
+                    .query_selector("span")
+                    .query_selector("span")
+                    .inner_text()
+                    .replace("$", "")
+                    .replace(",", "")
+                )
+                price_history.append([price_date, price_event, price_price])
+
+        print(price_history)
 
         browser.close()
 
