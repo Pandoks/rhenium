@@ -1,5 +1,4 @@
 import re
-import time
 from playwright.sync_api import sync_playwright
 
 
@@ -274,6 +273,7 @@ def get_zillow_range(start, end):
         print("---------- ZILLOW RANGE ----------")
         print("failed:", failed)
         print("properties:", properties)
+        return {"properties": properties, "failed": failed}
 
 
 # with sync_playwright() as playwright:
