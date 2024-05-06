@@ -22,6 +22,7 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_DATABASE = os.getenv("DB_DATABASE")
+CONNECTION_STRING = os.getenv("CONNECTION_STRING")
 
 write_lock = threading.Lock()
 
@@ -38,199 +39,277 @@ async def load_data():
         return pickle.loads(data)
 
 
-def insert_database(property, db):
-    cursor = db.cursor()
-    insert_property_query = """
-    INSERT INTO properties (
-        address, 
-        city, 
-        zip, 
-        state, 
-        status, 
-        price, 
-        bathrooms, 
-        full_bathrooms, 
-        half_bathrooms, 
-        three_fourths_bathrooms,
-        one_fourths_bathrooms,
-        stories,
-        bedrooms,
-        parcel_number,
-        year_built,
-        zoning,
-        lot_size,
-        structure_size,
-        interior_living_size,
-        parking_spaces,
-        garage_spaces,
-        covered_spaces,
-        fireplace_count,
-        home_type,
-        architectural_style,
-        basement,
-        hoa,
-        hoa_fee,
-        laundry,
-        foundation,
-        senior_community,
-        property_condition
-    ) VALUES (
-        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
-        %s, %s, %s, %s, %s, %s, %s, %s, %s
-    ) ON CONFLICT DO NOTHING
-    """
-    insert_price_history_query = """
-    INSERT INTO price_history (
-        date,
-        event,
-        price,
-        address,
-        city,
-        zip,
-        state
-    ) VALUES (
-        %s, %s, %s, %s, %s, %s, %s
-    ) ON CONFLICT DO NOTHING
-    """
-    insert_tax_history_query = """
-    INSERT INTO tax_history (
-        year,
-        assessment,
-        tax,
-        address,
-        city,
-        zip,
-        state
-    ) VALUES (
-        %s, %s, %s, %s, %s, %s, %s
-    ) ON CONFLICT DO NOTHING
-    """
-    insert_detail_query_template = """
-    INSERT INTO {table} (
-        {column},
-        address,
-        city,
-        zip,
-        state
-    ) VALUES (
-        %s, %s, %s, %s, %s
-    ) ON CONFLICT DO NOTHING
-    """
-    address = property["address"]
-    city = property["city"]
-    zip = property["zip"]
-    state = property["state"]
-    details = property["details"]
-    price_history = property["price_history"]
-    tax_history = property["tax_history"]
-    property_data = (
-        address,
-        city,
-        zip,
-        state,
-        property["status"],
-        property["price"],
-        details["bathrooms"],
-        details["full_bathrooms"],
-        details["half_bathrooms"],
-        details["three_fourths_bathrooms"],
-        details["one_fourths_bathrooms"],
-        details["stories"],
-        details["bedrooms"],
-        details["parcel_number"],
-        details["year_built"],
-        details["zoning"],
-        details["lot_size"],
-        details["structure_size"],
-        details["interior_living_size"],
-        details["parking_spaces"],
-        details["garage_spaces"],
-        details["covered_spaces"],
-        details["fireplace_count"],
-        details["home_type"],
-        details["architectural_style"],
-        details["basement"],
-        details["hoa"],
-        details["hoa_fee"],
-        details["laundry"],
-        details["foundation"],
-        details["senior_community"],
-        details["property_condition"],
-    )
+async def insert_database(property, db):
+    # cursor = db.cursor()
+    async with db.transaction():
+        # insert_property_query = """
+        # INSERT INTO properties (
+        #     address,
+        #     city,
+        #     zip,
+        #     state,
+        #     status,
+        #     price,
+        #     bathrooms,
+        #     full_bathrooms,
+        #     half_bathrooms,
+        #     three_fourths_bathrooms,
+        #     one_fourths_bathrooms,
+        #     stories,
+        #     bedrooms,
+        #     parcel_number,
+        #     year_built,
+        #     zoning,
+        #     lot_size,
+        #     structure_size,
+        #     interior_living_size,
+        #     parking_spaces,
+        #     garage_spaces,
+        #     covered_spaces,
+        #     fireplace_count,
+        #     home_type,
+        #     architectural_style,
+        #     basement,
+        #     hoa,
+        #     hoa_fee,
+        #     laundry,
+        #     foundation,
+        #     senior_community,
+        #     property_condition
+        # ) VALUES (
+        #     %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+        #     %s, %s, %s, %s, %s, %s, %s, %s, %s
+        # ) ON CONFLICT DO NOTHING
+        # """
+        # insert_price_history_query = """
+        # INSERT INTO price_history (
+        #     date,
+        #     event,
+        #     price,
+        #     address,
+        #     city,
+        #     zip,
+        #     state
+        # ) VALUES (
+        #     %s, %s, %s, %s, %s, %s, %s
+        # ) ON CONFLICT DO NOTHING
+        # """
+        # insert_tax_history_query = """
+        # INSERT INTO tax_history (
+        #     year,
+        #     assessment,
+        #     tax,
+        #     address,
+        #     city,
+        #     zip,
+        #     state
+        # ) VALUES (
+        #     %s, %s, %s, %s, %s, %s, %s
+        # ) ON CONFLICT DO NOTHING
+        # """
+        # insert_detail_query_template = """
+        # INSERT INTO {table} (
+        #     {column},
+        #     address,
+        #     city,
+        #     zip,
+        #     state
+        # ) VALUES (
+        #     %s, %s, %s, %s, %s
+        # ) ON CONFLICT DO NOTHING
+        # """
+        insert_property_query = """
+        INSERT INTO properties (
+            address, 
+            city, 
+            zip, 
+            state, 
+            status, 
+            price, 
+            bathrooms, 
+            full_bathrooms, 
+            half_bathrooms, 
+            three_fourths_bathrooms,
+            one_fourths_bathrooms,
+            stories,
+            bedrooms,
+            parcel_number,
+            year_built,
+            zoning,
+            lot_size,
+            structure_size,
+            interior_living_size,
+            parking_spaces,
+            garage_spaces,
+            covered_spaces,
+            fireplace_count,
+            home_type,
+            architectural_style,
+            basement,
+            hoa,
+            hoa_fee,
+            laundry,
+            foundation,
+            senior_community,
+            property_condition
+        ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, 
+            $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32
+        ) ON CONFLICT DO NOTHING
+        """
+        insert_price_history_query = """
+        INSERT INTO price_history (
+            date,
+            event,
+            price,
+            address,
+            city,
+            zip,
+            state
+        ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7
+        ) ON CONFLICT DO NOTHING
+        """
+        insert_tax_history_query = """
+        INSERT INTO tax_history (
+            year,
+            assessment,
+            tax,
+            address,
+            city,
+            zip,
+            state
+        ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7
+        ) ON CONFLICT DO NOTHING
+        """
+        insert_detail_query_template = """
+        INSERT INTO {table} (
+            {column},
+            address,
+            city,
+            zip,
+            state
+        ) VALUES (
+            $1, $2, $3, $4, $5
+        ) ON CONFLICT DO NOTHING
+        """
+        address = property["address"]
+        city = property["city"]
+        zip = property["zip"]
+        state = property["state"]
+        details = property["details"]
+        price_history = property["price_history"]
+        tax_history = property["tax_history"]
+        property_data = (
+            address,
+            city,
+            zip,
+            state,
+            property["status"],
+            property["price"],
+            details["bathrooms"],
+            details["full_bathrooms"],
+            details["half_bathrooms"],
+            details["three_fourths_bathrooms"],
+            details["one_fourths_bathrooms"],
+            details["stories"],
+            details["bedrooms"],
+            details["parcel_number"],
+            details["year_built"],
+            details["zoning"],
+            details["lot_size"],
+            details["structure_size"],
+            details["interior_living_size"],
+            details["parking_spaces"],
+            details["garage_spaces"],
+            details["covered_spaces"],
+            details["fireplace_count"],
+            details["home_type"],
+            details["architectural_style"],
+            details["basement"],
+            details["hoa"],
+            details["hoa_fee"],
+            details["laundry"],
+            details["foundation"],
+            details["senior_community"],
+            details["property_condition"],
+        )
 
-    cursor.execute(insert_property_query, property_data)
-    for price in price_history:
-        date = price["date"]
-        date_components = date.split("/")
-        price_data = (
-            f"{date_components[2]}-{date_components[0]}-{date_components[1]}",
-            price["event"],
-            price["price"],
-            address,
-            city,
-            zip,
-            state,
-        )
-        cursor.execute(insert_price_history_query, price_data)
-    for tax in tax_history:
-        tax_data = (
-            tax["year"],
-            tax["assessment"],
-            tax["taxes"],
-            address,
-            city,
-            zip,
-            state,
-        )
-        cursor.execute(insert_tax_history_query, tax_data)
-    details_table = {
-        "accessibility_features": "feature",
-        "additional_structures": "structure",
-        "amenities": "amenity",
-        "bathroom_features": "feature",
-        "bedroom_features": "feature",
-        "construction_materials": "material",
-        "cooling": "type",
-        "dining_features": "feature",
-        "exterior_features": "feature",
-        "family_features": "feature",
-        "fencing": "type",
-        "fireplace_features": "feature",
-        "flooring": "type",
-        "gas": "type",
-        "heating": "type",
-        "included_appliances": "appliance",
-        "interior_features": "feature",
-        "kitchen_features": "feature",
-        "lot_features": "feature",
-        "parking": "type",
-        "patio_porch_details": "detail",
-        "pool_features": "feature",
-        "property_subtype": "type",
-        "roof": "type",
-        "services": "service",
-        "sewer": "type",
-        "spa_features": "feature",
-        "utilities": "utility",
-        "view_description": "description",
-    }
-    for table, column in details_table.items():
-        features = details[table]
-        if not features:
-            continue
-        insert_table_query = insert_detail_query_template.format(
-            table=table, column=column
-        )
-        if isinstance(features, (list, tuple)):
-            for feature in features:
-                details_data = (feature, address, city, zip, state)
+        # cursor.execute(insert_property_query, property_data)
+
+        for price in price_history:
+            date = price["date"]
+            date_components = date.split("/")
+            price_data = (
+                f"{date_components[2]}-{date_components[0]}-{date_components[1]}",
+                price["event"],
+                price["price"],
+                address,
+                city,
+                zip,
+                state,
+            )
+            db.execute(insert_price_history_query, price_data)
+        for tax in tax_history:
+            tax_data = (
+                tax["year"],
+                tax["assessment"],
+                tax["taxes"],
+                address,
+                city,
+                zip,
+                state,
+            )
+            cursor.execute(insert_tax_history_query, tax_data)
+        details_table = {
+            "accessibility_features": "feature",
+            "additional_structures": "structure",
+            "amenities": "amenity",
+            "bathroom_features": "feature",
+            "bedroom_features": "feature",
+            "construction_materials": "material",
+            "cooling": "type",
+            "dining_features": "feature",
+            "exterior_features": "feature",
+            "family_features": "feature",
+            "fencing": "type",
+            "fireplace_features": "feature",
+            "flooring": "type",
+            "gas": "type",
+            "heating": "type",
+            "included_appliances": "appliance",
+            "interior_features": "feature",
+            "kitchen_features": "feature",
+            "lot_features": "feature",
+            "parking": "type",
+            "patio_porch_details": "detail",
+            "pool_features": "feature",
+            "property_subtype": "type",
+            "roof": "type",
+            "services": "service",
+            "sewer": "type",
+            "spa_features": "feature",
+            "utilities": "utility",
+            "view_description": "description",
+        }
+        for table, column in details_table.items():
+            features = details[table]
+            if not features:
+                continue
+            insert_table_query = insert_detail_query_template.format(
+                table=table, column=column
+            )
+            if isinstance(features, (list, tuple)):
+                for feature in features:
+                    details_data = (feature, address, city, zip, state)
+                    cursor.execute(insert_table_query, details_data)
+            else:
+                details_data = (details[table], address, city, zip, state)
                 cursor.execute(insert_table_query, details_data)
-        else:
-            details_data = (details[table], address, city, zip, state)
-            cursor.execute(insert_table_query, details_data)
 
-    db.commit()
-    cursor.close()
+        db.commit()
+        cursor.close()
 
 
 def get_zillow(url, queue, failed):
@@ -586,7 +665,7 @@ def get_zillow_range(start, end, failed, db):
     return failed
 
 
-def main():
+async def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command")
 
@@ -598,16 +677,17 @@ def main():
 
     args = parser.parse_args()
 
-    db = psycopg2.connect(
-        database=DB_DATABASE,
-        host=DB_HOST,
-        user=DB_USERNAME,
-        password=DB_PASSWORD,
-        port=DB_PORT,
-    )
+    # db = psycopg2.connect(
+    #     database=DB_DATABASE,
+    #     host=DB_HOST,
+    #     user=DB_USERNAME,
+    #     password=DB_PASSWORD,
+    #     port=DB_PORT,
+    # )
+    db = await asyncpg.connect(CONNECTION_STRING)
 
     if args.command == "continue":
-        continue_data = load_data()
+        continue_data = await load_data()
         if not continue_data:
             print("There is no cursor file or there is no data in the cursor file")
         print(
@@ -625,8 +705,8 @@ def main():
         print("Starting")
         get_zillow_range(args.start, args.end, set(), db)
 
-    db.close()
+    await db.close()
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
