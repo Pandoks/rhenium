@@ -38,7 +38,7 @@ def load_data():
     return data
 
 
-def insert_database(property):
+def insert_database(property, db):
     cursor = db.cursor()
     insert_property_query = """
     INSERT INTO properties (
@@ -528,14 +528,14 @@ def get_zillow(url, queue, failed):
             open_browser.close()
 
 
-def db_insert_worker(queue):
+def db_insert_worker(queue, db):
     while True:
         try:
             property_info = queue.get()
             if property_info is None:
                 break
 
-            insert_database(property_info)
+            insert_database(property_info, db)
             queue.task_done()
 
         except Exception as error:
@@ -551,10 +551,16 @@ def scrape_complete_callback(zillow_property_id, end, failed):
     return callback
 
 
-def get_zillow_range(start, end, failed):
+def get_zillow_range(start, end, failed, db):
     property_queue = queue.Queue()
 
-    db_insert_thread = threading.Thread(target=db_insert_worker, args=(property_queue,))
+    db_insert_thread = threading.Thread(
+        target=db_insert_worker,
+        args=(
+            property_queue,
+            db,
+        ),
+    )
     db_insert_thread.daemon = True
     db_insert_thread.start()
 
@@ -576,7 +582,7 @@ def get_zillow_range(start, end, failed):
         future.result()
 
     property_queue.put(None)
-    print("done")
+    print("Failed:", failed)
     return failed
 
 
@@ -601,7 +607,11 @@ def main():
     )
 
     if args.command == "continue":
-        print("Continue command")
+        print("Continuing")
+        continue_data = load_data()
+        get_zillow_range(
+            continue_data["start"], continue_data["end"], continue_data["failed"], db
+        )
     elif args.command == "start":
         print(f"Start command from {args.start} to {args.end}")
 
