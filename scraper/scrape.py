@@ -8,8 +8,12 @@ import psycopg2
 import threading
 import argparse
 import concurrent.futures
+import asyncio
+import asyncpg
+import aiofiles
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
 
 
 load_dotenv()
@@ -22,13 +26,10 @@ DB_DATABASE = os.getenv("DB_DATABASE")
 write_lock = threading.Lock()
 
 
-def store_data(start, end, failed):
-    data = {"start": start, "end": end, "failed": failed}
-    with write_lock:
-        data_file = open("cursor", "wb")
-
-        pickle.dump(data, data_file)
-        data_file.close()
+async def store_data(start, end, failed):
+    async with aiofiles.open("cursor", "wb") as data_file:
+        data = {"start": start, "end": end, "failed": failed}
+        await data_file.write(pickle.dumps(data))
 
 
 def load_data():
