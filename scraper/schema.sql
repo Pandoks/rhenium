@@ -59,10 +59,263 @@ CREATE TABLE price_history (
 );
 
 CREATE TABLE accessibility_features (
-  features TEXT,
+  feature TEXT,
   address TEXT,
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
+
+CREATE TABLE additional_structures (
+  structure TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE amenities (
+  amenity TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE bathroom_features (
+  feature TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE bedroom_features (
+  feature TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE construction_materials (
+  material TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE cooling (
+  type TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE dining_features (
+  feature TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE exterior_features (
+  feature TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE family_features (
+  feature TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE fencing (
+  type TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE fireplace_features (
+  feature TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE flooring (
+  type TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE gas (
+  type TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE heating (
+  type TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE included_appliances (
+  appliance TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE interior_features (
+  feature TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE kitchen_features (
+  feature TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE lot_features (
+  feature TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE parking (
+  type TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE patio_porch_details (
+  detail TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE pool_features (
+  feature TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE property_subtype (
+  type TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE roof (
+  type TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE services (
+  service TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE sewer (
+  type TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE spa_features (
+  feature TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE utilities (
+  utility TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE view_description (
+  description TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
