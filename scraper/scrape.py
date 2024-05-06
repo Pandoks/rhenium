@@ -607,20 +607,26 @@ def main():
     )
 
     if args.command == "continue":
-        print("Continuing")
         continue_data = load_data()
+        if not continue_data:
+            print("There is no cursor file or there is no data in the cursor file")
+        print(
+            f"""
+            Continuing from {continue_data['start']} to {continue_data['end']}.
+            Failures so far: {continue_data['failed']}.
+        """
+        )
         get_zillow_range(
             continue_data["start"], continue_data["end"], continue_data["failed"], db
         )
+
     elif args.command == "start":
         print(f"Start command from {args.start} to {args.end}")
+        print("Starting")
+        get_zillow_range(args.start, args.end, set(), db)
 
     db.close()
 
 
 if __name__ == "__main__":
     main()
-
-# get_zillow_range(15596583, 19529273, set())
-# get_zillow_range(15596583, 15596586, set())
-# print(load_data())
