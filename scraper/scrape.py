@@ -144,81 +144,94 @@ def get_zillow(url, browser):
         )
     property_info["tax_history"] = tax_history
 
+    # dict = { "feature": [[list of locators], [list of locators]] }
     fact_locators = {
-        "bedrooms": 'span:has-text("Bedrooms")',
-        "bathrooms": 'span:text-matches("Bathrooms")',
-        "full_bathrooms": 'span:has-text("Full bathrooms")',
-        "three_fourths_bathrooms": 'span:has-text("3/4 bathrooms")',
-        "half_bathrooms": 'span:has-text("1/2 bathrooms")',
-        "one_fourths_bathrooms": 'span:has-text("1/4 bathrooms")',
-        "year_built": 'span:text-matches("Year built: ")',
-        "lot_size": 'span:has-text("Lot size:")',
-        "lot_features": 'span:has-text("Lot features")',
-        "home_type": 'span:has-text("Home type")',
-        "architectural_style": 'span:has-text("Architectural style")',
-        "property_subtype": 'span:has-text("Property subType")',
-        "foundation": 'span:has-text("Foundation")',
-        "roof": 'span:has-text("Roof")',
-        "property_condition": 'span:has-text("Property condition")',
-        "stories": 'span:has-text("Stories")',
-        "interior_living_size": 'span:has-text("interior livable area")',
-        "structure_size": 'span:has-text("structure area")',
-        "parking": 'span:has-text("parking features")',
-        "parking_spaces": 'span:has-text("total spaces")',
-        "garage_spaces": 'span:has-text("garage spaces")',
-        "covered_spaces": 'span:has-text("covered spaces")',
-        "hoa": 'span:has-text("has HOA")',
-        "hoa_fee": 'span:has-text("HOA fee")',
-        "basement": 'span:has-text("Has basement")',
-        "fencing": 'span:has-text("Fencing")',
-        "gas": 'span:has-text("Gas information")',
-        "sewer": 'span:has-text("Sewer information")',
-        "water": 'span:has-text("Water information")',
-        "utilities": 'span:has-text("Utilities for property")',
-        "bedroom_features": 'h6:text-is("Bedroom")',
-        "bathroom_features": 'h6:text-is("Bathroom")',
-        "dining_features": 'h6:text-is("Dining room")',
-        "family_features": 'h6:text-is("Family room")',
-        "kitchen_features": 'h6:text-is("Kitchen")',
-        "flooring": 'span:has-text("Flooring")',
-        "heating": 'span:has-text("Heating features")',
-        "cooling": 'span:has-text("Cooling features")',
-        "included_appliances": 'span:has-text("Appliances included")',
-        "laundry": 'span:has-text("Laundry features")',
-        "pool_features": 'span:has-text("Pool features")',
-        "view_description": 'span:has-text("View description")',
-        "senior_community": 'span:has-text("Senior community")',
-        "interior_features": 'span:has-text("Interior features")',
-        "fireplace_features": 'span:has-text("Fireplace features")',
-        "fireplace_count": 'span:has-text("Total number of fireplaces")',
-        "spa_features": 'span:has-text("Spa features")',
-        "patio_porch_details": 'span:has-text("Patio & porch details")',
-        "zoning": 'span:has-text("Zoning")',
-        "exterior_features": 'span:has-text("Exterior features")',
-        "amenities": 'span:has-text("Amenities included")',
-        "services": 'span:has-text("Services included")',
-        "exterior_features": 'span:has-text("Exterior features")',
-        "interior_features": 'span:has-text("Interior features")',
-        "accessibility_features": 'span:has-text("Accessibility features")',
-        "additional_structures": 'span:has-text("Additional structures included")',
+        "bedrooms": [['span:has-text("Bedrooms")']],
+        "bathrooms": [['span:text-matches("Bathrooms")']],
+        "full_bathrooms": [['span:has-text("Full bathrooms")']],
+        "three_fourths_bathrooms": [['span:has-text("3/4 bathrooms")']],
+        "half_bathrooms": [['span:has-text("1/2 bathrooms")']],
+        "one_fourths_bathrooms": [['span:has-text("1/4 bathrooms")']],
+        "year_built": [['span:text-matches("Year built: ")']],
+        "lot_size": [['span:has-text("Lot size:")']],
+        "lot_features": [['span:has-text("Lot features")']],
+        "home_type": [['span:has-text("Home type")']],
+        "architectural_style": [['span:has-text("Architectural style")']],
+        "property_subtype": [['span:has-text("Property subType")']],
+        "foundation": [['span:has-text("Foundation")']],
+        "roof": [['span:has-text("Roof")']],
+        "property_condition": [['span:has-text("Property condition")']],
+        "stories": [['span:has-text("Stories")']],
+        "interior_living_size": [['span:has-text("interior livable area")']],
+        "structure_size": [['span:has-text("structure area")']],
+        "parking": [['span:has-text("parking features")']],
+        "parking_spaces": [['span:has-text("total spaces")']],
+        "garage_spaces": [['span:has-text("garage spaces")']],
+        "covered_spaces": [['span:has-text("covered spaces")']],
+        "hoa": [['span:has-text("has HOA")']],
+        "hoa_fee": [['span:has-text("HOA fee")']],
+        "basement": [['span:has-text("Has basement")']],
+        "fencing": [['span:has-text("Fencing")']],
+        "gas": [['span:has-text("Gas information")']],
+        "sewer": [['span:has-text("Sewer information")']],
+        "water": [['span:has-text("Water information")']],
+        "utilities": [['span:has-text("Utilities for property")']],
+        "bedroom_features": [
+            ['h6:text-is("Bedroom")', "xpath=..", 'span:has-text("Features")']
+        ],
+        "bathroom_features": [
+            ['h6:text-is("Bathroom")', "xpath=..", 'span:has-text("Features")']
+        ],
+        "dining_features": [
+            ['h6:text-is("Dining room")', "xpath=..", 'span:has-text("Features")']
+        ],
+        "family_features": [
+            ['h6:text-is("Family room")', "xpath=..", 'span:has-text("Features")']
+        ],
+        "kitchen_features": [
+            ['h6:text-is("Kitchen")', "xpath=..", 'span:has-text("Features")']
+        ],
+        "flooring": [['span:has-text("Flooring")']],
+        "heating": [['span:has-text("Heating features")']],
+        "cooling": [['span:has-text("Cooling features")']],
+        "included_appliances": [['span:has-text("Appliances included")']],
+        "laundry": [['span:has-text("Laundry features")']],
+        "pool_features": [['span:has-text("Pool features")']],
+        "view_description": [['span:has-text("View description")']],
+        "senior_community": [['span:has-text("Senior community")']],
+        "interior_features": [['span:has-text("Interior features")']],
+        "fireplace_features": [['span:has-text("Fireplace features")']],
+        "fireplace_count": [['span:has-text("Total number of fireplaces")']],
+        "spa_features": [['span:has-text("Spa features")']],
+        "patio_porch_details": [['span:has-text("Patio & porch details")']],
+        "zoning": [['span:has-text("Zoning")']],
+        "exterior_features": [['span:has-text("Exterior features")']],
+        "amenities": [['span:has-text("Amenities included")']],
+        "services": [['span:has-text("Services included")']],
+        "exterior_features": [['span:has-text("Exterior features")']],
+        "interior_features": [['span:has-text("Interior features")']],
+        "accessibility_features": [['span:has-text("Accessibility features")']],
+        "additional_structures": [['span:has-text("Additional structures included")']],
     }
     fact_info = {}
-    for key, fact_locator in fact_locators.items():
+    for key, fact_locators in fact_locators.items():
         element = None
-        if fact_locator.split(":")[0] != "span":
-            element = (
-                facts_element.locator(fact_locator)
-                .locator("xpath=..")
-                .locator('span:has-text("Features")')
-            )
-            if not element.count():
-                fact_info[key] = None
-                continue
-        else:
-            element = facts_element.locator(fact_locator)
-            if not element.count():
-                fact_info[key] = None
-                continue
+        for locators in fact_locators:
+            element = facts_element
+            for locator in locators:
+                element = element.locator(locator)
+                if not element.count():
+                    element = None
+                    break
+
+            if element and element != facts_element:
+                break
+            else:
+                element = None
+
+        if not element or not element.count():
+            fact_info[key] = None
+            continue
 
         element_text = element.inner_text().split(": ")[1]
 
@@ -263,10 +276,10 @@ def get_zillow_range(start, end):
                     browsers[current_browser],
                 )
                 properties.append(property_details)
-            except Exception:
-                print("failed:", Exception)
+            except Exception as e:
+                print("failed:", str(e))
                 current_browser = (current_browser + 1) % len(browsers)
-                failed.append([zillow_property_id, Exception])
+                failed.append([zillow_property_id, e])
 
         for browser in browsers:
             browser.close()
