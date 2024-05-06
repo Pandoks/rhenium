@@ -237,6 +237,41 @@ async def insert_database(property, db):
         )
 
         # cursor.execute(insert_property_query, property_data)
+        await db.execute(
+            insert_property_query,
+            address,
+            city,
+            zip,
+            state,
+            property["status"],
+            property["price"],
+            details["bathrooms"],
+            details["full_bathrooms"],
+            details["half_bathrooms"],
+            details["three_fourths_bathrooms"],
+            details["one_fourths_bathrooms"],
+            details["stories"],
+            details["bedrooms"],
+            details["parcel_number"],
+            details["year_built"],
+            details["zoning"],
+            details["lot_size"],
+            details["structure_size"],
+            details["interior_living_size"],
+            details["parking_spaces"],
+            details["garage_spaces"],
+            details["covered_spaces"],
+            details["fireplace_count"],
+            details["home_type"],
+            details["architectural_style"],
+            details["basement"],
+            details["hoa"],
+            details["hoa_fee"],
+            details["laundry"],
+            details["foundation"],
+            details["senior_community"],
+            details["property_condition"],
+        )
 
         for price in price_history:
             date = price["date"]
@@ -250,7 +285,17 @@ async def insert_database(property, db):
                 zip,
                 state,
             )
-            db.execute(insert_price_history_query, price_data)
+            # cursor.execute(insert_price_history_query, price_data)
+            await db.execute(
+                insert_price_history_query,
+                f"{date_components[2]}-{date_components[0]}-{date_components[1]}",
+                price["event"],
+                price["price"],
+                address,
+                city,
+                zip,
+                state,
+            )
         for tax in tax_history:
             tax_data = (
                 tax["year"],
@@ -261,7 +306,17 @@ async def insert_database(property, db):
                 zip,
                 state,
             )
-            cursor.execute(insert_tax_history_query, tax_data)
+            # cursor.execute(insert_tax_history_query, tax_data)
+            await db.execute(
+                insert_tax_history_query,
+                tax["year"],
+                tax["assessment"],
+                tax["taxes"],
+                address,
+                city,
+                zip,
+                state,
+            )
         details_table = {
             "accessibility_features": "feature",
             "additional_structures": "structure",
@@ -303,13 +358,19 @@ async def insert_database(property, db):
             if isinstance(features, (list, tuple)):
                 for feature in features:
                     details_data = (feature, address, city, zip, state)
-                    cursor.execute(insert_table_query, details_data)
+                    # cursor.execute(insert_table_query, details_data)
+                    await db.execute(
+                        insert_table_query, feature, address, city, zip, state
+                    )
             else:
                 details_data = (details[table], address, city, zip, state)
-                cursor.execute(insert_table_query, details_data)
+                # cursor.execute(insert_table_query, details_data)
+                await db.execute(
+                    insert_table_query, details[table], address, city, zip, state
+                )
 
-        db.commit()
-        cursor.close()
+        # db.commit()
+        # cursor.close()
 
 
 def get_zillow(url, queue, failed):
