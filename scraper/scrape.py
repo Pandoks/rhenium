@@ -304,6 +304,20 @@ def get_zillow(url, browser, queue, failed):
         browser.close()
 
 
+def db_insert_worker(queue):
+    while True:
+        try:
+            property_info = queue.get()
+            if property_info is None:
+                break
+
+            insert_database(property_info)
+            queue.task_done()
+
+        except Exception as error:
+            print(error)
+
+
 def get_zillow_range(start, end):
     with sync_playwright() as playwright:
         browsers = [
