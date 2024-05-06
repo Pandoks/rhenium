@@ -1,8 +1,21 @@
 CREATE TABLE properties (
-  address text,
-  city text,
-  zip: varchar(10),
-  state: varchar(2),
-  status: text,
-  price: money
-)
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  status TEXT,
+  price MONEY,
+  PRIMARY KEY (address, city, zip, state)
+);
+
+CREATE TABLE tax_history (
+  year VARCHAR(4),
+  assessment MONEY,
+  taxes MONEY,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, year),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
