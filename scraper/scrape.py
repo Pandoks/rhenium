@@ -37,6 +37,9 @@ async def store_data(start, end, failed):
 async def load_data():
     async with aiofiles.open("cursor", "rb") as data_file:
         data = await data_file.read()
+        if not data:
+            raise ValueError("No cursor file or no data in cursor file")
+        print(pickle.loads(data))
         return pickle.loads(data)
 
 
@@ -239,40 +242,43 @@ async def insert_database(property, db):
             )
 
             # cursor.execute(insert_property_query, property_data)
+            cast = lambda value, type_conversion: (
+                type_conversion(value) if value is not None else None
+            )
             await conn.execute(
                 insert_property_query,
-                str(address),
-                str(city),
-                str(zip),
-                str(state),
-                str(property["status"]),
-                str(property["price"]),
-                float(details["bathrooms"]),
-                int(details["full_bathrooms"]),
-                int(details["half_bathrooms"]),
-                int(details["three_fourths_bathrooms"]),
-                int(details["one_fourths_bathrooms"]),
-                int(details["stories"]),
-                int(details["bedrooms"]),
-                int(details["parcel_number"]),
-                str(details["year_built"]),
-                str(details["zoning"]),
-                str(details["lot_size"]),
-                str(details["structure_size"]),
-                str(details["interior_living_size"]),
-                int(details["parking_spaces"]),
-                int(details["garage_spaces"]),
-                int(details["covered_spaces"]),
-                int(details["fireplace_count"]),
-                str(details["home_type"]),
-                str(details["architectural_style"]),
-                bool(details["basement"]),
-                bool(details["hoa"]),
-                str(details["hoa_fee"]),
-                str(details["laundry"]),
-                str(details["foundation"]),
-                bool(details["senior_community"]),
-                str(details["property_condition"]),
+                cast(address, str),
+                cast(city, str),
+                cast(zip, str),
+                cast(state, str),
+                cast(property["status"], str),
+                cast(property["price"], str),
+                cast(details["bathrooms"], float),
+                cast(details["full_bathrooms"], int),
+                cast(details["half_bathrooms"], int),
+                cast(details["three_fourths_bathrooms"], int),
+                cast(details["one_fourths_bathrooms"], int),
+                cast(details["stories"], int),
+                cast(details["bedrooms"], int),
+                cast(details["parcel_number"], int),
+                cast(details["year_built"], str),
+                cast(details["zoning"], str),
+                cast(details["lot_size"], str),
+                cast(details["structure_size"], str),
+                cast(details["interior_living_size"], str),
+                cast(details["parking_spaces"], int),
+                cast(details["garage_spaces"], int),
+                cast(details["covered_spaces"], int),
+                cast(details["fireplace_count"], int),
+                cast(details["home_type"], str),
+                cast(details["architectural_style"], str),
+                cast(details["basement"], bool),
+                cast(details["hoa"], bool),
+                cast(details["hoa_fee"], str),
+                cast(details["laundry"], str),
+                cast(details["foundation"], str),
+                cast(details["senior_community"], bool),
+                cast(details["property_condition"], str),
             )
 
             for price in price_history:
@@ -293,12 +299,12 @@ async def insert_database(property, db):
                     datetime.date(
                         date_components[2], date_components[0], date_components[1]
                     ),
-                    str(price["event"]),
-                    str(price["price"]),
-                    str(address),
-                    str(city),
-                    str(zip),
-                    str(state),
+                    cast(price["event"], str),
+                    cast(price["price"], str),
+                    cast(address, str),
+                    cast(city, str),
+                    cast(zip, str),
+                    cast(state, str),
                 )
             for tax in tax_history:
                 tax_data = (
@@ -313,13 +319,13 @@ async def insert_database(property, db):
                 # cursor.execute(insert_tax_history_query, tax_data)
                 await conn.execute(
                     insert_tax_history_query,
-                    str(tax["year"]),
-                    str(tax["assessment"]),
-                    str(tax["taxes"]),
-                    str(address),
-                    str(city),
-                    str(zip),
-                    str(state),
+                    cast(tax["year"], str),
+                    cast(tax["assessment"], str),
+                    cast(tax["taxes"], str),
+                    cast(address, str),
+                    cast(city, str),
+                    cast(zip, str),
+                    cast(state, str),
                 )
             details_table = {
                 "accessibility_features": "feature",
@@ -365,22 +371,22 @@ async def insert_database(property, db):
                         # cursor.execute(insert_table_query, details_data)
                         await conn.execute(
                             insert_table_query,
-                            str(feature),
-                            str(address),
-                            str(city),
-                            str(zip),
-                            str(state),
+                            cast(feature, str),
+                            cast(address, str),
+                            cast(city, str),
+                            cast(zip, str),
+                            cast(state, str),
                         )
                 else:
                     details_data = (details[table], address, city, zip, state)
                     # cursor.execute(insert_table_query, details_data)
                     await conn.execute(
                         insert_table_query,
-                        str(details[table]),
-                        str(address),
-                        str(city),
-                        str(zip),
-                        str(state),
+                        cast(details[table], str),
+                        cast(address, str),
+                        cast(city, str),
+                        cast(zip, str),
+                        cast(state, str),
                     )
 
             # db.commit()
