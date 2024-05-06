@@ -731,7 +731,7 @@ async def get_zillow(url, failed, db, semaphore, end):
             except Exception as error:
                 print(error)
                 zillow_property_id = url.split("/")[-2].split("_")[0]
-                failed.add(int(zillow_property_id))
+                failed.add(zillow_property_id)
 
             finally:
                 await open_browser.close()
