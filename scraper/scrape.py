@@ -32,11 +32,10 @@ async def store_data(start, end, failed):
         await data_file.write(pickle.dumps(data))
 
 
-def load_data():
-    data_file = open("cursor", "rb")
-    data = pickle.load(data_file)
-    data_file.close()
-    return data
+async def load_data():
+    async with aiofiles.open("cursor", "rb") as data_file:
+        data = await data_file.read()
+        return pickle.loads(data)
 
 
 def insert_database(property, db):
