@@ -6,6 +6,7 @@ import queue
 import pprint
 import psycopg2
 import threading
+import argparse
 import concurrent.futures
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
@@ -18,24 +19,16 @@ DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_DATABASE = os.getenv("DB_DATABASE")
 
-db = psycopg2.connect(
-    database=DB_DATABASE,
-    host=DB_HOST,
-    user=DB_USERNAME,
-    password=DB_PASSWORD,
-    port=DB_PORT,
-)
-
-
 write_lock = threading.Lock()
 
 
 def store_data(start, end, failed):
     data = {"start": start, "end": end, "failed": failed}
-    data_file = open("cursor", "wb")
+    with write_lock:
+        data_file = open("cursor", "wb")
 
-    pickle.dump(data, data_file)
-    data_file.close()
+        pickle.dump(data, data_file)
+        data_file.close()
 
 
 def load_data():
@@ -587,8 +580,37 @@ def get_zillow_range(start, end, failed):
     return failed
 
 
+def main():
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="command")
+
+    continue_parser = subparsers.add_parser("continue")
+
+    start_parser = subparsers.add_parser("start")
+    start_parser.add_argument("--start", type=int, required=True)
+    start_parser.add_argument("--end", type=int, required=True)
+
+    args = parser.parse_args()
+
+    db = psycopg2.connect(
+        database=DB_DATABASE,
+        host=DB_HOST,
+        user=DB_USERNAME,
+        password=DB_PASSWORD,
+        port=DB_PORT,
+    )
+
+    if args.command == "continue":
+        print("Continue command")
+    elif args.command == "start":
+        print(f"Start command from {args.start} to {args.end}")
+
+    db.close()
+
+
+if __name__ == "__main__":
+    main()
+
 # get_zillow_range(15596583, 19529273, set())
 # get_zillow_range(15596583, 15596586, set())
-print(load_data())
-
-db.close()
+# print(load_data())
