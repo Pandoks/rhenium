@@ -304,6 +304,7 @@ def get_zillow_range(start, end):
                 properties.append(property_details)
             except Exception as e:
                 print("failed:", str(e))
+                browsers[current_browser].close()
                 current_browser = (current_browser + 1) % len(browsers)
                 failed.append(zillow_property_id)
 
