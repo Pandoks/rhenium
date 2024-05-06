@@ -5,6 +5,7 @@ import psycopg2
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 
+
 load_dotenv()
 DB_USERNAME = os.getenv("DB_USERNAME")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
@@ -19,7 +20,6 @@ db = psycopg2.connect(
     password=DB_PASSWORD,
     port=DB_PORT,
 )
-cursor = db.cursor()
 
 
 def get_zillow(url, browser):
@@ -315,6 +315,202 @@ def get_zillow_range(start, end):
         return {"properties": properties, "failed": failed}
 
 
+def insert_database(properties):
+    cursor = db.cursor()
+    insert_property_query = """
+    INSERT INTO properties (
+        address, 
+        city, 
+        zip, 
+        state, 
+        status, 
+        price, 
+        bathrooms, 
+        full_bathrooms, 
+        half_bathrooms, 
+        three_fourths_bathrooms,
+        one_fourths_bathrooms,
+        stories,
+        bedrooms,
+        parcel_number,
+        year_built,
+        zoning,
+        lot_size,
+        structure_size,
+        interior_living_size,
+        parking_spaces,
+        garage_spaces,
+        covered_spaces,
+        fireplace_count,
+        home_type,
+        architectural_style,
+        basement,
+        hoa,
+        hoa_fee,
+        laundry,
+        foundation,
+        senior_community,
+        property_condition
+    ) VALUES (
+        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
+        %s, %s, %s, %s, %s, %s, %s, %s, %s
+    ) ON CONFLICT DO NOTHING
+    """
+    insert_price_history_query = """
+    INSERT INTO price_history (
+        date,
+        event,
+        price,
+        address,
+        city,
+        zip,
+        state
+    ) VALUES (
+        %s, %s, %s, %s, %s, %s, %s
+    ) ON CONFLICT DO NOTHING
+    """
+    insert_tax_history_query = """
+    INSERT INTO tax_history (
+        year,
+        assessment,
+        tax,
+        address,
+        city,
+        zip,
+        state
+    ) VALUES (
+        %s, %s, %s, %s, %s, %s, %s
+    ) ON CONFLICT DO NOTHING
+    """
+    insert_detail_query_template = """
+    INSERT INTO {table} (
+        {column},
+        address,
+        city,
+        zip,
+        state
+    ) VALUES (
+        %s, %s, %s, %s, %s
+    ) ON CONFLICT DO NOTHING
+    """
+    for property in properties:
+        address = property["address"]
+        city = property["city"]
+        zip = property["zip"]
+        state = property["state"]
+        details = property["details"]
+        price_history = property["price_history"]
+        tax_history = property["tax_history"]
+        property_data = (
+            address,
+            city,
+            zip,
+            state,
+            property["status"],
+            property["price"],
+            details["bathrooms"],
+            details["full_bathrooms"],
+            details["half_bathrooms"],
+            details["three_fourths_bathrooms"],
+            details["one_fourths_bathrooms"],
+            details["stories"],
+            details["bedrooms"],
+            details["parcel_number"],
+            details["year_built"],
+            details["zoning"],
+            details["lot_size"],
+            details["structure_size"],
+            details["interior_living_size"],
+            details["parking_spaces"],
+            details["garage_spaces"],
+            details["covered_spaces"],
+            details["fireplace_count"],
+            details["home_type"],
+            details["architectural_style"],
+            details["basement"],
+            details["hoa"],
+            details["hoa_fee"],
+            details["laundry"],
+            details["foundation"],
+            details["senior_community"],
+            details["property_condition"],
+        )
+
+        cursor.execute(insert_property_query, property_data)
+        for price in price_history:
+            date = price["date"]
+            date_components = date.split("/")
+            price_data = (
+                f"{date_components[2]}-{date_components[0]}-{date_components[1]}",
+                price["event"],
+                price["price"],
+                address,
+                city,
+                zip,
+                state,
+            )
+            cursor.execute(insert_price_history_query, price_data)
+        for tax in tax_history:
+            tax_data = (
+                tax["year"],
+                tax["assessment"],
+                tax["taxes"],
+                address,
+                city,
+                zip,
+                state,
+            )
+            cursor.execute(insert_tax_history_query, tax_data)
+        details_table = {
+            "accessibility_features": "feature",
+            "additional_structures": "structure",
+            "amenities": "amenity",
+            "bathroom_features": "feature",
+            "bedroom_features": "feature",
+            "construction_materials": "material",
+            "cooling": "type",
+            "dining_features": "feature",
+            "exterior_features": "feature",
+            "family_features": "feature",
+            "fencing": "type",
+            "fireplace_features": "feature",
+            "flooring": "type",
+            "gas": "type",
+            "heating": "type",
+            "included_appliances": "appliance",
+            "interior_features": "feature",
+            "kitchen_features": "feature",
+            "lot_features": "feature",
+            "parking": "type",
+            "patio_porch_details": "detail",
+            "pool_features": "feature",
+            "property_subtype": "type",
+            "roof": "type",
+            "services": "service",
+            "sewer": "type",
+            "spa_features": "feature",
+            "utilities": "utility",
+            "view_description": "description",
+        }
+        for table, column in details_table.items():
+            features = details[table]
+            if not features:
+                continue
+            insert_table_query = insert_detail_query_template.format(
+                table=table, column=column
+            )
+            if isinstance(features, (list, tuple)):
+                for feature in features:
+                    details_data = (feature, address, city, zip, state)
+                    cursor.execute(insert_table_query, details_data)
+            else:
+                details_data = (details[table], address, city, zip, state)
+                cursor.execute(insert_table_query, details_data)
+
+    db.commit()
+    cursor.close()
+
+
 # with sync_playwright() as playwright:
 #     get_zillow(
 #         "https://www.zillow.com/homedetails/19523272_zpid/",
@@ -333,3 +529,6 @@ def get_zillow_range(start, end):
 #         playwright.chromium.launch(headless=False),
 #     )
 # get_zillow_range(19523271, 19523281)
+insert_database(get_zillow_range(15596583, 19529273)["properties"])
+
+db.close()

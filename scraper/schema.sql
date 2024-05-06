@@ -37,7 +37,7 @@ CREATE TABLE properties (
 CREATE TABLE tax_history (
   year VARCHAR(4),
   assessment MONEY,
-  taxes MONEY,
+  tax MONEY,
   address TEXT,
   city TEXT,
   zip VARCHAR(10),
