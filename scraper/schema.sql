@@ -5,6 +5,23 @@ CREATE TABLE properties (
   state VARCHAR(2),
   status TEXT,
   price MONEY,
+  bathrooms REAL,
+  full_bathrooms SMALLINT,
+  half_bathrooms SMALLINT,
+  three_fourths_bathrooms SMALLINT,
+  one_fourths_bathrooms SMALLINT,
+  stories SMALLINT,
+  bedrooms SMALLINT,
+  parcel_number INTEGER,
+  year_built VARCHAR(4),
+  zoning TEXT,
+  lot_size TEXT,
+  structure_size TEXT,
+  interior_living_size TEXT,
+  parking_spaces SMALLINT,
+  garage_spaces SMALLINT,
+  covered_spaces SMALLINT,
+  fireplace_count SMALLINT,
   PRIMARY KEY (address, city, zip, state)
 );
 
