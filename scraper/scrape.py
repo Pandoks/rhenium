@@ -26,12 +26,14 @@ DB_DATABASE = os.getenv("DB_DATABASE")
 CONNECTION_STRING = os.getenv("CONNECTION_STRING")
 
 # write_lock = threading.Lock()
+write_lock = asyncio.Lock()
 
 
 async def store_data(start, end, failed):
-    async with aiofiles.open("cursor", "wb") as data_file:
-        data = {"start": start, "end": end, "failed": failed}
-        await data_file.write(pickle.dumps(data))
+    async with write_lock:
+        async with aiofiles.open("cursor", "wb") as data_file:
+            data = {"start": start, "end": end, "failed": failed}
+            await data_file.write(pickle.dumps(data))
 
 
 async def load_data():
