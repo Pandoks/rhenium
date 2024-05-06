@@ -238,6 +238,8 @@ def get_zillow(url, browser):
             fact_info[key] = None
             continue
 
+        if element.count() > 1:
+            element = element.nth(0)
         element_text = element.inner_text().split(": ")[1]
 
         if element_text == "Yes":
