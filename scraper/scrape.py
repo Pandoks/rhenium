@@ -320,34 +320,35 @@ def db_insert_worker(queue):
 
 def get_zillow_range(start, end):
     with sync_playwright() as playwright:
-        browsers = [
-            playwright.chromium.launch(headless=False),
-            playwright.firefox.launch(headless=False),
-            playwright.webkit.launch(headless=False),
-        ]
-        current_browser = 0
-
-        properties = []
+        property_queue = queue.Queue()
         failed = []
-        for zillow_property_id in range(start, end, 1):
-            try:
-                property_details = get_zillow(
-                    f"https://www.zillow.com/homedetails/{zillow_property_id}_zpid/",
-                    browsers[current_browser],
-                )
-                properties.append(property_details)
-            except Exception as e:
-                print("failed:", str(e))
-                browsers[current_browser].close()
-                current_browser = (current_browser + 1) % len(browsers)
-                failed.append(zillow_property_id)
 
-        for browser in browsers:
-            browser.close()
-        print("---------- ZILLOW RANGE ----------")
-        print("Failed:", failed)
-        print("Properties:", properties)
-        return {"properties": properties, "failed": failed}
+        db_insert_thread = threading.Thread(
+            target=db_insert_worker, args=(property_queue,)
+        )
+        db_insert_thread.daemon = True
+        db_insert_thread.start()
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            futures = {
+                executor.submit(
+                    get_zillow,
+                    f"https://www.zillow.com/homedetails/{zillow_property_id}_zpid",
+                    playwright.chromium,
+                    property_queue,
+                    failed,
+                )
+                for zillow_property_id in range(start, end, 1)
+            }
+
+        for future in concurrent.futures.as_completed(futures):
+            future.result()
+
+        property_queue.put(None)
+        property_queue.join()
+        db_insert_thread.join()
+        print("done")
+        return failed
 
 
 def insert_database(property):
