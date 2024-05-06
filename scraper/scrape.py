@@ -11,6 +11,7 @@ import concurrent.futures
 import asyncio
 import asyncpg
 import aiofiles
+import datetime
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 from playwright.async_api import async_playwright
@@ -240,38 +241,38 @@ async def insert_database(property, db):
             # cursor.execute(insert_property_query, property_data)
             await conn.execute(
                 insert_property_query,
-                address,
-                city,
-                zip,
-                state,
-                property["status"],
-                property["price"],
-                details["bathrooms"],
-                details["full_bathrooms"],
-                details["half_bathrooms"],
-                details["three_fourths_bathrooms"],
-                details["one_fourths_bathrooms"],
-                details["stories"],
-                details["bedrooms"],
-                details["parcel_number"],
-                details["year_built"],
-                details["zoning"],
-                details["lot_size"],
-                details["structure_size"],
-                details["interior_living_size"],
-                details["parking_spaces"],
-                details["garage_spaces"],
-                details["covered_spaces"],
-                details["fireplace_count"],
-                details["home_type"],
-                details["architectural_style"],
-                details["basement"],
-                details["hoa"],
-                details["hoa_fee"],
-                details["laundry"],
-                details["foundation"],
-                details["senior_community"],
-                details["property_condition"],
+                str(address),
+                str(city),
+                str(zip),
+                str(state),
+                str(property["status"]),
+                str(property["price"]),
+                float(details["bathrooms"]),
+                int(details["full_bathrooms"]),
+                int(details["half_bathrooms"]),
+                int(details["three_fourths_bathrooms"]),
+                int(details["one_fourths_bathrooms"]),
+                int(details["stories"]),
+                int(details["bedrooms"]),
+                int(details["parcel_number"]),
+                str(details["year_built"]),
+                str(details["zoning"]),
+                str(details["lot_size"]),
+                str(details["structure_size"]),
+                str(details["interior_living_size"]),
+                int(details["parking_spaces"]),
+                int(details["garage_spaces"]),
+                int(details["covered_spaces"]),
+                int(details["fireplace_count"]),
+                str(details["home_type"]),
+                str(details["architectural_style"]),
+                bool(details["basement"]),
+                bool(details["hoa"]),
+                str(details["hoa_fee"]),
+                str(details["laundry"]),
+                str(details["foundation"]),
+                bool(details["senior_community"]),
+                str(details["property_condition"]),
             )
 
             for price in price_history:
@@ -289,13 +290,15 @@ async def insert_database(property, db):
                 # cursor.execute(insert_price_history_query, price_data)
                 await conn.execute(
                     insert_price_history_query,
-                    f"{date_components[2]}-{date_components[0]}-{date_components[1]}",
-                    price["event"],
-                    price["price"],
-                    address,
-                    city,
-                    zip,
-                    state,
+                    datetime.date(
+                        date_components[2], date_components[0], date_components[1]
+                    ),
+                    str(price["event"]),
+                    str(price["price"]),
+                    str(address),
+                    str(city),
+                    str(zip),
+                    str(state),
                 )
             for tax in tax_history:
                 tax_data = (
@@ -310,13 +313,13 @@ async def insert_database(property, db):
                 # cursor.execute(insert_tax_history_query, tax_data)
                 await conn.execute(
                     insert_tax_history_query,
-                    tax["year"],
-                    tax["assessment"],
-                    tax["taxes"],
-                    address,
-                    city,
-                    zip,
-                    state,
+                    str(tax["year"]),
+                    str(tax["assessment"]),
+                    str(tax["taxes"]),
+                    str(address),
+                    str(city),
+                    str(zip),
+                    str(state),
                 )
             details_table = {
                 "accessibility_features": "feature",
@@ -361,13 +364,23 @@ async def insert_database(property, db):
                         details_data = (feature, address, city, zip, state)
                         # cursor.execute(insert_table_query, details_data)
                         await conn.execute(
-                            insert_table_query, feature, address, city, zip, state
+                            insert_table_query,
+                            str(feature),
+                            str(address),
+                            str(city),
+                            str(zip),
+                            str(state),
                         )
                 else:
                     details_data = (details[table], address, city, zip, state)
                     # cursor.execute(insert_table_query, details_data)
                     await conn.execute(
-                        insert_table_query, details[table], address, city, zip, state
+                        insert_table_query,
+                        str(details[table]),
+                        str(address),
+                        str(city),
+                        str(zip),
+                        str(state),
                     )
 
             # db.commit()
