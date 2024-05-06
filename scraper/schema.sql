@@ -22,6 +22,15 @@ CREATE TABLE properties (
   garage_spaces SMALLINT,
   covered_spaces SMALLINT,
   fireplace_count SMALLINT,
+  home_type TEXT,
+  architectural_style TEXT,
+  basement BOOLEAN,
+  hoa BOOLEAN,
+  hoa_fee TEXT,
+  laundry TEXT,
+  foundation TEXT,
+  senior_community BOOLEAN,
+  property_condition TEXT,
   PRIMARY KEY (address, city, zip, state)
 );
 
@@ -46,5 +55,14 @@ CREATE TABLE price_history (
   zip VARCHAR(10),
   state VARCHAR(2),
   PRIMARY KEY (address, city, zip, state, date),
+  FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
+);
+
+CREATE TABLE accessibility_features (
+  features TEXT,
+  address TEXT,
+  city TEXT,
+  zip VARCHAR(10),
+  state VARCHAR(2),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
