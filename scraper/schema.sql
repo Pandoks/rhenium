@@ -64,6 +64,7 @@ CREATE TABLE accessibility_features (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, feature),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -73,6 +74,7 @@ CREATE TABLE additional_structures (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, structure),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -82,6 +84,7 @@ CREATE TABLE amenities (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, amenity),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -91,6 +94,7 @@ CREATE TABLE bathroom_features (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, feature),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -100,6 +104,7 @@ CREATE TABLE bedroom_features (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, feature),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -109,6 +114,7 @@ CREATE TABLE construction_materials (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, material),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -118,6 +124,7 @@ CREATE TABLE cooling (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, type),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -127,6 +134,7 @@ CREATE TABLE dining_features (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, feature),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -136,6 +144,7 @@ CREATE TABLE exterior_features (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, feature),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -145,6 +154,7 @@ CREATE TABLE family_features (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, feature),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -154,6 +164,7 @@ CREATE TABLE fencing (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, type),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -163,6 +174,7 @@ CREATE TABLE fireplace_features (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, feature),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -172,6 +184,7 @@ CREATE TABLE flooring (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, type),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -181,6 +194,7 @@ CREATE TABLE gas (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, type),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -190,6 +204,7 @@ CREATE TABLE heating (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, type),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -199,6 +214,7 @@ CREATE TABLE included_appliances (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, appliance),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -208,6 +224,7 @@ CREATE TABLE interior_features (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, feature),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -217,6 +234,7 @@ CREATE TABLE kitchen_features (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, feature),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -226,6 +244,7 @@ CREATE TABLE lot_features (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, feature),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -235,6 +254,7 @@ CREATE TABLE parking (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, type),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -244,6 +264,7 @@ CREATE TABLE patio_porch_details (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, detail),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -253,6 +274,7 @@ CREATE TABLE pool_features (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, feature),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -262,6 +284,7 @@ CREATE TABLE property_subtype (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, type),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -271,6 +294,7 @@ CREATE TABLE roof (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, type),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -280,6 +304,7 @@ CREATE TABLE services (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, service),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -289,6 +314,7 @@ CREATE TABLE sewer (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, type),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -298,6 +324,7 @@ CREATE TABLE spa_features (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, feature),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -307,6 +334,7 @@ CREATE TABLE utilities (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, utility),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
@@ -316,6 +344,7 @@ CREATE TABLE view_description (
   city TEXT,
   zip VARCHAR(10),
   state VARCHAR(2),
+  PRIMARY KEY (address, city, zip, state, description),
   FOREIGN KEY (address, city, zip, state) REFERENCES properties(address, city, zip, state)
 );
 
