@@ -257,7 +257,7 @@ def get_zillow(url, browser):
             fact_info[key] = element_split_text
             continue
 
-        fact_info[key] = element_text
+        fact_info[key] = [element_text]
     property_info["details"] = fact_info
 
     page.close()
