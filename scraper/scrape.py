@@ -24,7 +24,7 @@ DB_PORT = os.getenv("DB_PORT")
 DB_DATABASE = os.getenv("DB_DATABASE")
 CONNECTION_STRING = os.getenv("CONNECTION_STRING")
 
-write_lock = threading.Lock()
+# write_lock = threading.Lock()
 
 
 async def store_data(start, end, failed):
@@ -41,381 +41,383 @@ async def load_data():
 
 async def insert_database(property, db):
     # cursor = db.cursor()
-    async with db.transaction():
-        # insert_property_query = """
-        # INSERT INTO properties (
-        #     address,
-        #     city,
-        #     zip,
-        #     state,
-        #     status,
-        #     price,
-        #     bathrooms,
-        #     full_bathrooms,
-        #     half_bathrooms,
-        #     three_fourths_bathrooms,
-        #     one_fourths_bathrooms,
-        #     stories,
-        #     bedrooms,
-        #     parcel_number,
-        #     year_built,
-        #     zoning,
-        #     lot_size,
-        #     structure_size,
-        #     interior_living_size,
-        #     parking_spaces,
-        #     garage_spaces,
-        #     covered_spaces,
-        #     fireplace_count,
-        #     home_type,
-        #     architectural_style,
-        #     basement,
-        #     hoa,
-        #     hoa_fee,
-        #     laundry,
-        #     foundation,
-        #     senior_community,
-        #     property_condition
-        # ) VALUES (
-        #     %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-        #     %s, %s, %s, %s, %s, %s, %s, %s, %s
-        # ) ON CONFLICT DO NOTHING
-        # """
-        # insert_price_history_query = """
-        # INSERT INTO price_history (
-        #     date,
-        #     event,
-        #     price,
-        #     address,
-        #     city,
-        #     zip,
-        #     state
-        # ) VALUES (
-        #     %s, %s, %s, %s, %s, %s, %s
-        # ) ON CONFLICT DO NOTHING
-        # """
-        # insert_tax_history_query = """
-        # INSERT INTO tax_history (
-        #     year,
-        #     assessment,
-        #     tax,
-        #     address,
-        #     city,
-        #     zip,
-        #     state
-        # ) VALUES (
-        #     %s, %s, %s, %s, %s, %s, %s
-        # ) ON CONFLICT DO NOTHING
-        # """
-        # insert_detail_query_template = """
-        # INSERT INTO {table} (
-        #     {column},
-        #     address,
-        #     city,
-        #     zip,
-        #     state
-        # ) VALUES (
-        #     %s, %s, %s, %s, %s
-        # ) ON CONFLICT DO NOTHING
-        # """
-        insert_property_query = """
-        INSERT INTO properties (
-            address, 
-            city, 
-            zip, 
-            state, 
-            status, 
-            price, 
-            bathrooms, 
-            full_bathrooms, 
-            half_bathrooms, 
-            three_fourths_bathrooms,
-            one_fourths_bathrooms,
-            stories,
-            bedrooms,
-            parcel_number,
-            year_built,
-            zoning,
-            lot_size,
-            structure_size,
-            interior_living_size,
-            parking_spaces,
-            garage_spaces,
-            covered_spaces,
-            fireplace_count,
-            home_type,
-            architectural_style,
-            basement,
-            hoa,
-            hoa_fee,
-            laundry,
-            foundation,
-            senior_community,
-            property_condition
-        ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, 
-            $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32
-        ) ON CONFLICT DO NOTHING
-        """
-        insert_price_history_query = """
-        INSERT INTO price_history (
-            date,
-            event,
-            price,
-            address,
-            city,
-            zip,
-            state
-        ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7
-        ) ON CONFLICT DO NOTHING
-        """
-        insert_tax_history_query = """
-        INSERT INTO tax_history (
-            year,
-            assessment,
-            tax,
-            address,
-            city,
-            zip,
-            state
-        ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7
-        ) ON CONFLICT DO NOTHING
-        """
-        insert_detail_query_template = """
-        INSERT INTO {table} (
-            {column},
-            address,
-            city,
-            zip,
-            state
-        ) VALUES (
-            $1, $2, $3, $4, $5
-        ) ON CONFLICT DO NOTHING
-        """
-        address = property["address"]
-        city = property["city"]
-        zip = property["zip"]
-        state = property["state"]
-        details = property["details"]
-        price_history = property["price_history"]
-        tax_history = property["tax_history"]
-        property_data = (
-            address,
-            city,
-            zip,
-            state,
-            property["status"],
-            property["price"],
-            details["bathrooms"],
-            details["full_bathrooms"],
-            details["half_bathrooms"],
-            details["three_fourths_bathrooms"],
-            details["one_fourths_bathrooms"],
-            details["stories"],
-            details["bedrooms"],
-            details["parcel_number"],
-            details["year_built"],
-            details["zoning"],
-            details["lot_size"],
-            details["structure_size"],
-            details["interior_living_size"],
-            details["parking_spaces"],
-            details["garage_spaces"],
-            details["covered_spaces"],
-            details["fireplace_count"],
-            details["home_type"],
-            details["architectural_style"],
-            details["basement"],
-            details["hoa"],
-            details["hoa_fee"],
-            details["laundry"],
-            details["foundation"],
-            details["senior_community"],
-            details["property_condition"],
-        )
+    async with db.acquire() as conn:
+        async with conn.transaction():
+            # insert_property_query = """
+            # INSERT INTO properties (
+            #     address,
+            #     city,
+            #     zip,
+            #     state,
+            #     status,
+            #     price,
+            #     bathrooms,
+            #     full_bathrooms,
+            #     half_bathrooms,
+            #     three_fourths_bathrooms,
+            #     one_fourths_bathrooms,
+            #     stories,
+            #     bedrooms,
+            #     parcel_number,
+            #     year_built,
+            #     zoning,
+            #     lot_size,
+            #     structure_size,
+            #     interior_living_size,
+            #     parking_spaces,
+            #     garage_spaces,
+            #     covered_spaces,
+            #     fireplace_count,
+            #     home_type,
+            #     architectural_style,
+            #     basement,
+            #     hoa,
+            #     hoa_fee,
+            #     laundry,
+            #     foundation,
+            #     senior_community,
+            #     property_condition
+            # ) VALUES (
+            #     %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+            #     %s, %s, %s, %s, %s, %s, %s, %s, %s
+            # ) ON CONFLICT DO NOTHING
+            # """
+            # insert_price_history_query = """
+            # INSERT INTO price_history (
+            #     date,
+            #     event,
+            #     price,
+            #     address,
+            #     city,
+            #     zip,
+            #     state
+            # ) VALUES (
+            #     %s, %s, %s, %s, %s, %s, %s
+            # ) ON CONFLICT DO NOTHING
+            # """
+            # insert_tax_history_query = """
+            # INSERT INTO tax_history (
+            #     year,
+            #     assessment,
+            #     tax,
+            #     address,
+            #     city,
+            #     zip,
+            #     state
+            # ) VALUES (
+            #     %s, %s, %s, %s, %s, %s, %s
+            # ) ON CONFLICT DO NOTHING
+            # """
+            # insert_detail_query_template = """
+            # INSERT INTO {table} (
+            #     {column},
+            #     address,
+            #     city,
+            #     zip,
+            #     state
+            # ) VALUES (
+            #     %s, %s, %s, %s, %s
+            # ) ON CONFLICT DO NOTHING
+            # """
+            insert_property_query = """
+            INSERT INTO properties (
+                address, 
+                city, 
+                zip, 
+                state, 
+                status, 
+                price, 
+                bathrooms, 
+                full_bathrooms, 
+                half_bathrooms, 
+                three_fourths_bathrooms,
+                one_fourths_bathrooms,
+                stories,
+                bedrooms,
+                parcel_number,
+                year_built,
+                zoning,
+                lot_size,
+                structure_size,
+                interior_living_size,
+                parking_spaces,
+                garage_spaces,
+                covered_spaces,
+                fireplace_count,
+                home_type,
+                architectural_style,
+                basement,
+                hoa,
+                hoa_fee,
+                laundry,
+                foundation,
+                senior_community,
+                property_condition
+            ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, 
+                $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32
+            ) ON CONFLICT DO NOTHING
+            """
+            insert_price_history_query = """
+            INSERT INTO price_history (
+                date,
+                event,
+                price,
+                address,
+                city,
+                zip,
+                state
+            ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7
+            ) ON CONFLICT DO NOTHING
+            """
+            insert_tax_history_query = """
+            INSERT INTO tax_history (
+                year,
+                assessment,
+                tax,
+                address,
+                city,
+                zip,
+                state
+            ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7
+            ) ON CONFLICT DO NOTHING
+            """
+            insert_detail_query_template = """
+            INSERT INTO {table} (
+                {column},
+                address,
+                city,
+                zip,
+                state
+            ) VALUES (
+                $1, $2, $3, $4, $5
+            ) ON CONFLICT DO NOTHING
+            """
+            address = property["address"]
+            city = property["city"]
+            zip = property["zip"]
+            state = property["state"]
+            details = property["details"]
+            price_history = property["price_history"]
+            tax_history = property["tax_history"]
+            property_data = (
+                address,
+                city,
+                zip,
+                state,
+                property["status"],
+                property["price"],
+                details["bathrooms"],
+                details["full_bathrooms"],
+                details["half_bathrooms"],
+                details["three_fourths_bathrooms"],
+                details["one_fourths_bathrooms"],
+                details["stories"],
+                details["bedrooms"],
+                details["parcel_number"],
+                details["year_built"],
+                details["zoning"],
+                details["lot_size"],
+                details["structure_size"],
+                details["interior_living_size"],
+                details["parking_spaces"],
+                details["garage_spaces"],
+                details["covered_spaces"],
+                details["fireplace_count"],
+                details["home_type"],
+                details["architectural_style"],
+                details["basement"],
+                details["hoa"],
+                details["hoa_fee"],
+                details["laundry"],
+                details["foundation"],
+                details["senior_community"],
+                details["property_condition"],
+            )
 
-        # cursor.execute(insert_property_query, property_data)
-        await db.execute(
-            insert_property_query,
-            address,
-            city,
-            zip,
-            state,
-            property["status"],
-            property["price"],
-            details["bathrooms"],
-            details["full_bathrooms"],
-            details["half_bathrooms"],
-            details["three_fourths_bathrooms"],
-            details["one_fourths_bathrooms"],
-            details["stories"],
-            details["bedrooms"],
-            details["parcel_number"],
-            details["year_built"],
-            details["zoning"],
-            details["lot_size"],
-            details["structure_size"],
-            details["interior_living_size"],
-            details["parking_spaces"],
-            details["garage_spaces"],
-            details["covered_spaces"],
-            details["fireplace_count"],
-            details["home_type"],
-            details["architectural_style"],
-            details["basement"],
-            details["hoa"],
-            details["hoa_fee"],
-            details["laundry"],
-            details["foundation"],
-            details["senior_community"],
-            details["property_condition"],
-        )
+            # cursor.execute(insert_property_query, property_data)
+            await conn.execute(
+                insert_property_query,
+                address,
+                city,
+                zip,
+                state,
+                property["status"],
+                property["price"],
+                details["bathrooms"],
+                details["full_bathrooms"],
+                details["half_bathrooms"],
+                details["three_fourths_bathrooms"],
+                details["one_fourths_bathrooms"],
+                details["stories"],
+                details["bedrooms"],
+                details["parcel_number"],
+                details["year_built"],
+                details["zoning"],
+                details["lot_size"],
+                details["structure_size"],
+                details["interior_living_size"],
+                details["parking_spaces"],
+                details["garage_spaces"],
+                details["covered_spaces"],
+                details["fireplace_count"],
+                details["home_type"],
+                details["architectural_style"],
+                details["basement"],
+                details["hoa"],
+                details["hoa_fee"],
+                details["laundry"],
+                details["foundation"],
+                details["senior_community"],
+                details["property_condition"],
+            )
 
-        for price in price_history:
-            date = price["date"]
-            date_components = date.split("/")
-            price_data = (
-                f"{date_components[2]}-{date_components[0]}-{date_components[1]}",
-                price["event"],
-                price["price"],
-                address,
-                city,
-                zip,
-                state,
-            )
-            # cursor.execute(insert_price_history_query, price_data)
-            await db.execute(
-                insert_price_history_query,
-                f"{date_components[2]}-{date_components[0]}-{date_components[1]}",
-                price["event"],
-                price["price"],
-                address,
-                city,
-                zip,
-                state,
-            )
-        for tax in tax_history:
-            tax_data = (
-                tax["year"],
-                tax["assessment"],
-                tax["taxes"],
-                address,
-                city,
-                zip,
-                state,
-            )
-            # cursor.execute(insert_tax_history_query, tax_data)
-            await db.execute(
-                insert_tax_history_query,
-                tax["year"],
-                tax["assessment"],
-                tax["taxes"],
-                address,
-                city,
-                zip,
-                state,
-            )
-        details_table = {
-            "accessibility_features": "feature",
-            "additional_structures": "structure",
-            "amenities": "amenity",
-            "bathroom_features": "feature",
-            "bedroom_features": "feature",
-            "construction_materials": "material",
-            "cooling": "type",
-            "dining_features": "feature",
-            "exterior_features": "feature",
-            "family_features": "feature",
-            "fencing": "type",
-            "fireplace_features": "feature",
-            "flooring": "type",
-            "gas": "type",
-            "heating": "type",
-            "included_appliances": "appliance",
-            "interior_features": "feature",
-            "kitchen_features": "feature",
-            "lot_features": "feature",
-            "parking": "type",
-            "patio_porch_details": "detail",
-            "pool_features": "feature",
-            "property_subtype": "type",
-            "roof": "type",
-            "services": "service",
-            "sewer": "type",
-            "spa_features": "feature",
-            "utilities": "utility",
-            "view_description": "description",
-        }
-        for table, column in details_table.items():
-            features = details[table]
-            if not features:
-                continue
-            insert_table_query = insert_detail_query_template.format(
-                table=table, column=column
-            )
-            if isinstance(features, (list, tuple)):
-                for feature in features:
-                    details_data = (feature, address, city, zip, state)
-                    # cursor.execute(insert_table_query, details_data)
-                    await db.execute(
-                        insert_table_query, feature, address, city, zip, state
-                    )
-            else:
-                details_data = (details[table], address, city, zip, state)
-                # cursor.execute(insert_table_query, details_data)
-                await db.execute(
-                    insert_table_query, details[table], address, city, zip, state
+            for price in price_history:
+                date = price["date"]
+                date_components = date.split("/")
+                price_data = (
+                    f"{date_components[2]}-{date_components[0]}-{date_components[1]}",
+                    price["event"],
+                    price["price"],
+                    address,
+                    city,
+                    zip,
+                    state,
                 )
+                # cursor.execute(insert_price_history_query, price_data)
+                await conn.execute(
+                    insert_price_history_query,
+                    f"{date_components[2]}-{date_components[0]}-{date_components[1]}",
+                    price["event"],
+                    price["price"],
+                    address,
+                    city,
+                    zip,
+                    state,
+                )
+            for tax in tax_history:
+                tax_data = (
+                    tax["year"],
+                    tax["assessment"],
+                    tax["taxes"],
+                    address,
+                    city,
+                    zip,
+                    state,
+                )
+                # cursor.execute(insert_tax_history_query, tax_data)
+                await conn.execute(
+                    insert_tax_history_query,
+                    tax["year"],
+                    tax["assessment"],
+                    tax["taxes"],
+                    address,
+                    city,
+                    zip,
+                    state,
+                )
+            details_table = {
+                "accessibility_features": "feature",
+                "additional_structures": "structure",
+                "amenities": "amenity",
+                "bathroom_features": "feature",
+                "bedroom_features": "feature",
+                "construction_materials": "material",
+                "cooling": "type",
+                "dining_features": "feature",
+                "exterior_features": "feature",
+                "family_features": "feature",
+                "fencing": "type",
+                "fireplace_features": "feature",
+                "flooring": "type",
+                "gas": "type",
+                "heating": "type",
+                "included_appliances": "appliance",
+                "interior_features": "feature",
+                "kitchen_features": "feature",
+                "lot_features": "feature",
+                "parking": "type",
+                "patio_porch_details": "detail",
+                "pool_features": "feature",
+                "property_subtype": "type",
+                "roof": "type",
+                "services": "service",
+                "sewer": "type",
+                "spa_features": "feature",
+                "utilities": "utility",
+                "view_description": "description",
+            }
+            for table, column in details_table.items():
+                features = details[table]
+                if not features:
+                    continue
+                insert_table_query = insert_detail_query_template.format(
+                    table=table, column=column
+                )
+                if isinstance(features, (list, tuple)):
+                    for feature in features:
+                        details_data = (feature, address, city, zip, state)
+                        # cursor.execute(insert_table_query, details_data)
+                        await conn.execute(
+                            insert_table_query, feature, address, city, zip, state
+                        )
+                else:
+                    details_data = (details[table], address, city, zip, state)
+                    # cursor.execute(insert_table_query, details_data)
+                    await conn.execute(
+                        insert_table_query, details[table], address, city, zip, state
+                    )
 
-        # db.commit()
-        # cursor.close()
+            # db.commit()
+            # cursor.close()
 
 
-def get_zillow(url, queue, failed):
-    with sync_playwright() as playwright:
+async def get_zillow(url, queue, failed):
+    async with async_playwright() as playwright:
+        # with sync_playwright() as playwright:
         browsers = [playwright.chromium, playwright.firefox, playwright.webkit]
-        open_browser = random.choice(browsers).launch(headless=False)
+        open_browser = await random.choice(browsers).launch(headless=False)
         try:
             print(f"---------- Getting {url} ----------")
 
             property_info = {}
 
-            page = open_browser.new_page()
-            page.goto(url)
+            page = await open_browser.new_page()
+            await page.goto(url)
 
-            page.wait_for_load_state("domcontentloaded")
+            await page.wait_for_load_state("domcontentloaded")
             price_history_element = page.locator('h2:text-is("Price history")').locator(
                 "xpath=.."
             )
-            if not price_history_element.count():
+            if not await price_history_element.count():
                 price_history_element = page.locator(
                     'h5:text-is("Price history")'
                 ).locator("xpath=..")
             button = price_history_element.locator('span:text-is("Show more")').locator(
                 "xpath=.."
             )
-            if button.count() > 0:
-                button.click()
+            if await button.count() > 0:
+                await button.click()
 
             tax_history_element = page.locator(
                 'h2:text-is("Public tax history")'
             ).locator("xpath=..")
-            if not tax_history_element.count():
+            if not await tax_history_element.count():
                 tax_history_element = page.locator(
                     'h5:text-is("Public tax history")'
                 ).locator("xpath=..")
             button = tax_history_element.locator('span:text-is("Show more")').locator(
                 "xpath=.."
             )
-            if button.count() > 0:
-                button.click()
+            if await button.count() > 0:
+                await button.click()
 
             facts_element = page.locator('h4:text-is("Facts and features")').locator(
                 "xpath=.."
             )
-            if not facts_element.count():
+            if not await facts_element.count():
                 facts_element = page.locator('h2:text-is("Facts & features")').locator(
                     "xpath=.."
                 )
@@ -424,17 +426,17 @@ def get_zillow(url, queue, failed):
             ).locator("xpath=..")
             if not button.count():
                 button = facts_element.locator('span:text-is("Show more")')
-            if button.count() > 0:
-                button.click()
-            page.wait_for_load_state("domcontentloaded")
+            if await button.count() > 0:
+                await button.click()
+            await page.wait_for_load_state("domcontentloaded")
 
             isListing = False
-            status = page.query_selector(
+            status = await page.query_selector(
                 "span.Text-c11n-8-99-3__sc-aiai24-0.dpf__sc-1yftt2a-1.dFxMdJ.ixkFNb"
             )
             if not status:
                 isListing = True
-                status = page.query_selector(
+                status = await page.query_selector(
                     "span.Text-c11n-8-100-2__sc-aiai24-0.HomeStatusIconAndText__StyledStatusText-fshdp-8-100-2__sc-1yftt2a-1.bSfDch.ijIdQj"
                 )
             if not status:
@@ -442,28 +444,30 @@ def get_zillow(url, queue, failed):
                     f"Couldn't figure out the status of the listing '{url}'"
                 )
             else:
-                status = status.inner_text()
+                status = await status.inner_text()
             property_info["status"] = status
 
             price = None
-            price_element = page.query_selector('span[data-testid="price"]')
+            price_element = await page.query_selector('span[data-testid="price"]')
             if price_element:
-                price = price_element.inner_text().replace("$", "").replace(",", "")
+                price = (
+                    (await price_element.inner_text()).replace("$", "").replace(",", "")
+                )
             property_info["price"] = price
 
             address = None
             city = None
             state = None
             zip = None
-            address_element = page.query_selector(
+            address_element = await page.query_selector(
                 "h1.Text-c11n-8-100-2__sc-aiai24-0.bSfDch"
             )
             if not address_element:
-                address_element = page.query_selector(
+                address_element = await page.query_selector(
                     "h1.Text-c11n-8-99-3__sc-aiai24-0.dFxMdJ"
                 )
             if address_element:
-                address_element_text = address_element.inner_text().split(",")
+                address_element_text = (await address_element.inner_text()).split(",")
                 address = address_element_text[0]
                 city = re.sub(r"[^a-zA-Z]", "", address_element_text[1])
                 state = address_element_text[2].split(" ")[1]
@@ -475,39 +479,50 @@ def get_zillow(url, queue, failed):
 
             price_history = []
             for price_rows in (
-                price_history_element.locator("tbody")
+                await price_history_element.locator("tbody")
                 .locator("tr[id]")
                 .element_handles()
             ):
-                price_columns = price_rows.query_selector_all("td")
-                price_date = price_columns[0].query_selector("span").inner_text()
-                price_event = price_columns[1].query_selector("span").inner_text()
+                price_columns = await price_rows.query_selector_all("td")
+                price_date = (
+                    await price_columns[0].query_selector("span")
+                ).inner_text()
+                price_event = (
+                    await price_columns[1].query_selector("span")
+                ).inner_text()
                 price_price = (
-                    price_columns[2]
-                    .query_selector("span")
-                    .query_selector("span")
-                    .inner_text()
+                    (
+                        await (
+                            await (
+                                await price_columns[2].query_selector("span")
+                            ).query_selector("span")
+                        ).inner_text()
+                    )
                     .replace("$", "")
                     .replace(",", "")
                 )
                 price_history.append(
-                    {"date": price_date, "event": price_event, "price": price_price}
+                    {
+                        "date": await price_date,
+                        "event": await price_event,
+                        "price": price_price,
+                    }
                 )
             property_info["price_history"] = price_history
 
             tax_history = []
             for tax_rows in (
-                tax_history_element.locator("tbody").locator("tr").element_handles()
+                await tax_history_element.locator("tbody")
+                .locator("tr")
+                .element_handles()
             ):
                 tax_columns = []
                 if not isListing:
-                    tax_columns.append(tax_rows.query_selector("th"))
-                tax_columns.extend(tax_rows.query_selector_all("td"))
-                tax_year = tax_columns[0].inner_text()
+                    tax_columns.append(await tax_rows.query_selector("th"))
+                tax_columns.extend(await tax_rows.query_selector_all("td"))
+                tax_year = await tax_columns[0].inner_text()
                 property_taxes = (
-                    tax_columns[1]
-                    .query_selector("span")
-                    .inner_text()
+                    (await (await tax_columns[1].query_selector("span")).inner_text())
                     .replace("$", "")
                     .replace(",", "")
                     .split(" ")[0]
@@ -515,9 +530,7 @@ def get_zillow(url, queue, failed):
                 if property_taxes == "--":
                     property_taxes = None
                 tax_assessment = (
-                    tax_columns[2]
-                    .query_selector("span")
-                    .inner_text()
+                    (await (await tax_columns[2].query_selector("span")).inner_text())
                     .replace("$", "")
                     .replace(",", "")
                     .split(" ")[0]
@@ -621,7 +634,7 @@ def get_zillow(url, queue, failed):
                     element = facts_element
                     for locator in locators:
                         element = element.locator(locator)
-                        if not element.count():
+                        if not await element.count():
                             element = None
                             break
 
@@ -630,13 +643,13 @@ def get_zillow(url, queue, failed):
                     else:
                         element = None
 
-                if not element or not element.count():
+                if not element or not await element.count():
                     fact_info[key] = None
                     continue
 
-                if element.count() > 1:
+                if await element.count() > 1:
                     element = element.nth(0)
-                element_text = element.inner_text().split(": ")[1]
+                element_text = (await element.inner_text()).split(": ")[1]
 
                 if element_text == "Yes":
                     fact_info[key] = True
@@ -657,7 +670,7 @@ def get_zillow(url, queue, failed):
             property_info["details"] = fact_info
 
             pprint.pprint(property_info)
-            queue.put(property_info)
+            await queue.put(property_info)
 
         except Exception as error:
             print(error)
@@ -665,7 +678,7 @@ def get_zillow(url, queue, failed):
             failed.add(int(zillow_property_id))
 
         finally:
-            open_browser.close()
+            await open_browser.close()
 
 
 def db_insert_worker(queue, db):
@@ -692,34 +705,37 @@ def scrape_complete_callback(zillow_property_id, end, failed):
 
 
 def get_zillow_range(start, end, failed, db):
-    property_queue = queue.Queue()
+    # property_queue = queue.Queue()
+    #
+    # db_insert_thread = threading.Thread(
+    #     target=db_insert_worker,
+    #     args=(
+    #         property_queue,
+    #         db,
+    #     ),
+    # )
+    # db_insert_thread.daemon = True
+    # db_insert_thread.start()
+    #
+    # with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+    #     futures = []
+    #     for zillow_property_id in range(start, end, 1):
+    #         future = executor.submit(
+    #             get_zillow,
+    #             f"https://www.zillow.com/homedetails/{zillow_property_id}_zpid/",
+    #             property_queue,
+    #             failed,
+    #         )
+    #         future.add_done_callback(
+    #             scrape_complete_callback(zillow_property_id, end, failed)
+    #         )
+    #         futures.append(future)
+    #
+    # for future in concurrent.futures.as_completed(futures):
+    #     future.result()
 
-    db_insert_thread = threading.Thread(
-        target=db_insert_worker,
-        args=(
-            property_queue,
-            db,
-        ),
-    )
-    db_insert_thread.daemon = True
-    db_insert_thread.start()
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-        futures = []
-        for zillow_property_id in range(start, end, 1):
-            future = executor.submit(
-                get_zillow,
-                f"https://www.zillow.com/homedetails/{zillow_property_id}_zpid/",
-                property_queue,
-                failed,
-            )
-            future.add_done_callback(
-                scrape_complete_callback(zillow_property_id, end, failed)
-            )
-            futures.append(future)
-
-    for future in concurrent.futures.as_completed(futures):
-        future.result()
+    tasks = set()
+    semaphore = asyncio.Semaphore(10)
 
     property_queue.put(None)
     print("Failed:", failed)
@@ -745,7 +761,9 @@ async def main():
     #     password=DB_PASSWORD,
     #     port=DB_PORT,
     # )
-    db = await asyncpg.connect(CONNECTION_STRING)
+    db_pool = await asyncpg.create_pool(CONNECTION_STRING)
+    if not db_pool:
+        raise ValueError("Database connection failed")
 
     if args.command == "continue":
         continue_data = await load_data()
@@ -758,15 +776,18 @@ async def main():
         """
         )
         get_zillow_range(
-            continue_data["start"], continue_data["end"], continue_data["failed"], db
+            continue_data["start"],
+            continue_data["end"],
+            continue_data["failed"],
+            db_pool,
         )
 
     elif args.command == "start":
         print(f"Start command from {args.start} to {args.end}")
         print("Starting")
-        get_zillow_range(args.start, args.end, set(), db)
+        get_zillow_range(args.start, args.end, set(), db_pool)
 
-    await db.close()
+    await db_pool.close()
 
 
 if __name__ == "__main__":
