@@ -297,7 +297,9 @@ async def insert_database(property, db):
                 await conn.execute(
                     insert_price_history_query,
                     datetime.date(
-                        date_components[2], date_components[0], date_components[1]
+                        int(date_components[2]),
+                        int(date_components[0]),
+                        int(date_components[1]),
                     ),
                     cast(price["event"], str),
                     cast(price["price"], str),
