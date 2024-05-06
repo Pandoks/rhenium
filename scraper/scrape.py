@@ -374,7 +374,7 @@ async def insert_database(property, db):
             # cursor.close()
 
 
-async def get_zillow(url, queue, failed):
+async def get_zillow(url, failed, db):
     async with async_playwright() as playwright:
         # with sync_playwright() as playwright:
         browsers = [playwright.chromium, playwright.firefox, playwright.webkit]
@@ -424,7 +424,7 @@ async def get_zillow(url, queue, failed):
             button = facts_element.locator(
                 'span:text-is("See more facts and features")'
             ).locator("xpath=..")
-            if not button.count():
+            if not await button.count():
                 button = facts_element.locator('span:text-is("Show more")')
             if await button.count() > 0:
                 await button.click()
@@ -670,7 +670,7 @@ async def get_zillow(url, queue, failed):
             property_info["details"] = fact_info
 
             pprint.pprint(property_info)
-            await queue.put(property_info)
+            await insert_database(property_info, db)
 
         except Exception as error:
             print(error)
@@ -704,7 +704,7 @@ def scrape_complete_callback(zillow_property_id, end, failed):
     return callback
 
 
-def get_zillow_range(start, end, failed, db):
+async def get_zillow_range(start, end, failed, db, semaphore_count):
     # property_queue = queue.Queue()
     #
     # db_insert_thread = threading.Thread(
@@ -735,9 +735,23 @@ def get_zillow_range(start, end, failed, db):
     #     future.result()
 
     tasks = set()
-    semaphore = asyncio.Semaphore(10)
+    semaphore = asyncio.Semaphore(semaphore_count)
 
-    property_queue.put(None)
+    for zillow_property_id in range(start, end):
+        task = asyncio.create_task(
+            get_zillow(
+                f"https://www.zillow.com/homedetails/{zillow_property_id}_zpid/",
+                failed,
+                db,
+            )
+        )
+        tasks.add(task)
+        if len(tasks) >= semaphore_count:
+            await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+
+    await asyncio.gather(*tasks)
+
+    # property_queue.put(None)
     print("Failed:", failed)
     return failed
 
@@ -775,17 +789,18 @@ async def main():
             Failures so far: {continue_data['failed']}.
         """
         )
-        get_zillow_range(
+        await get_zillow_range(
             continue_data["start"],
             continue_data["end"],
             continue_data["failed"],
             db_pool,
+            5,
         )
 
     elif args.command == "start":
         print(f"Start command from {args.start} to {args.end}")
         print("Starting")
-        get_zillow_range(args.start, args.end, set(), db_pool)
+        await get_zillow_range(args.start, args.end, set(), db_pool, 5)
 
     await db_pool.close()
 
