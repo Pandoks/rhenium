@@ -546,24 +546,7 @@ def insert_database(property):
     cursor.close()
 
 
-# with sync_playwright() as playwright:
-#     get_zillow(
-#         "https://www.zillow.com/homedetails/19523272_zpid/",
-#         playwright.chromium.launch(headless=False),
-#     )
-#     get_zillow(
-#         "https://www.zillow.com/homedetails/674-Picasso-Trl-Sunnyvale-CA-94087/19547454_zpid/",
-#         playwright.chromium.launch(headless=False),
-#     )
-#     get_zillow(
-#         "https://www.zillow.com/homes/875-Cotati-Trl-.num.5-Sunnyvale,-CA-94085_rb/300481656_zpid/",
-#         playwright.chromium.launch(headless=False),
-#     )
-#     get_zillow(
-#         "https://www.zillow.com/homes/502-Porpoise-Bay-Ter-.num.A-Sunnyvale,-CA-94089_rb/19494076_zpid/",
-#         playwright.chromium.launch(headless=False),
-#     )
-# get_zillow_range(19523271, 19523281)
-insert_database(get_zillow_range(15596583, 19529273)["properties"])
+# get_zillow_range(15596583, 19529273)
+get_zillow_range(15596583, 15596586)
 
 db.close()
