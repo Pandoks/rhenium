@@ -4,6 +4,7 @@ import random
 import re
 import queue
 import pprint
+import datetime
 import psycopg2
 import threading
 import argparse
@@ -238,7 +239,7 @@ def get_zillow(url, queue, failed):
         browsers = [playwright.chromium, playwright.firefox, playwright.webkit]
         open_browser = random.choice(browsers).launch(headless=False)
         try:
-            print(f"---------- Getting {url} ----------")
+            print(f"---------- Getting {url} : {datetime.datetime.now()} ----------")
 
             property_info = {}
 
@@ -516,7 +517,7 @@ def get_zillow(url, queue, failed):
                 fact_info[key] = [element_text]
             property_info["details"] = fact_info
 
-            pprint.pprint(property_info)
+            # pprint.pprint(property_info)
             queue.put(property_info)
             return True
 
