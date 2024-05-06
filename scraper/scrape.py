@@ -1,6 +1,25 @@
+import os
 import re
 import pprint
+import psycopg2
+from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
+
+load_dotenv()
+DB_USERNAME = os.getenv("DB_USERNAME")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_DATABASE = os.getenv("DB_DATABASE")
+
+db = psycopg2.connect(
+    database=DB_DATABASE,
+    host=DB_HOST,
+    user=DB_USERNAME,
+    password=DB_PASSWORD,
+    port=DB_PORT,
+)
+cursor = db.cursor()
 
 
 def get_zillow(url, browser):
