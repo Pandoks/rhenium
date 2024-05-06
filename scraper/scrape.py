@@ -518,11 +518,13 @@ def get_zillow(url, queue, failed):
 
             pprint.pprint(property_info)
             queue.put(property_info)
+            return True
 
         except Exception as error:
             print(error)
             zillow_property_id = url.split("/")[-2].split("_")[0]
             failed.add(int(zillow_property_id))
+            return False
 
         finally:
             open_browser.close()
@@ -543,8 +545,8 @@ def db_insert_worker(queue, db):
 
 
 def scrape_complete_callback(zillow_property_id, end, failed):
-    def callback(_):
-        if zillow_property_id in failed:
+    def callback(future):
+        if not future.result():
             return
         store_data(zillow_property_id, end, failed)
 
