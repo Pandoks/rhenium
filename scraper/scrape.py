@@ -1,4 +1,5 @@
 import re
+import pprint
 from playwright.sync_api import sync_playwright
 
 
@@ -77,6 +78,8 @@ def get_zillow(url, browser):
     state = None
     zip = None
     address_element = page.query_selector("h1.Text-c11n-8-100-2__sc-aiai24-0.bSfDch")
+    if not address_element:
+        address_element = page.query_selector("h1.Text-c11n-8-99-3__sc-aiai24-0.dFxMdJ")
     if address_element:
         address_element_text = address_element.inner_text().split(",")
         address = address_element_text[0]
@@ -176,6 +179,8 @@ def get_zillow(url, browser):
         "sewer": [['span:has-text("Sewer information")']],
         "water": [['span:has-text("Water information")']],
         "utilities": [['span:has-text("Utilities for property")']],
+        "construction_materials": [['span:has-text("Construction materials:")']],
+        "parcel_number": [['span:has-text("Parcel number")']],
         "bedroom_features": [
             ['h6:text-is("Bedroom")', "xpath=..", 'span:has-text("Features")']
         ],
@@ -254,7 +259,7 @@ def get_zillow(url, browser):
     property_info["details"] = fact_info
 
     page.close()
-    print(property_info)
+    pprint.pprint(property_info)
     return property_info
 
 
@@ -279,13 +284,13 @@ def get_zillow_range(start, end):
             except Exception as e:
                 print("failed:", str(e))
                 current_browser = (current_browser + 1) % len(browsers)
-                failed.append([zillow_property_id, e])
+                failed.append(zillow_property_id)
 
         for browser in browsers:
             browser.close()
         print("---------- ZILLOW RANGE ----------")
-        print("failed:", failed)
-        print("properties:", properties)
+        print("Failed:", failed)
+        print("Properties:", properties)
         return {"properties": properties, "failed": failed}
 
 
