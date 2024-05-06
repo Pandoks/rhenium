@@ -726,7 +726,7 @@ async def get_zillow(url, failed, db, semaphore, end):
                 pprint.pprint(property_info)
                 zillow_property_id = url.split("/")[-2].split("_")[0]
                 await insert_database(property_info, db)
-                await store_data(zillow_property_id, end, failed)
+                await store_data(int(zillow_property_id), end, failed)
 
             except Exception as error:
                 print(error)
