@@ -567,7 +567,7 @@ def get_zillow_range(start, end, failed, db):
     db_insert_thread.daemon = True
     db_insert_thread.start()
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         futures = []
         for zillow_property_id in range(start, end, 1):
             future = executor.submit(
@@ -589,6 +589,8 @@ def get_zillow_range(start, end, failed, db):
     return failed
 
 
+# NOTE: It seems like Zillow prefers your IP to be in the US or at least near the places that
+# you're scraping
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command")
