@@ -591,7 +591,7 @@ def get_zillow_range(start, end, failed, db):
                 scrape_complete_callback(zillow_property_id, end, failed)
             )
             futures.append(future)
-            time.sleep(0.5)
+            time.sleep(1)
 
     for future in concurrent.futures.as_completed(futures):
         future.result()
