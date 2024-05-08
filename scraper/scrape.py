@@ -20,6 +20,7 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_DATABASE = os.getenv("DB_DATABASE")
+THREADS = int(os.getenv("THREADS", 1))
 
 write_lock = threading.Lock()
 
@@ -578,7 +579,7 @@ def get_zillow_range(start, end, failed, db):
     db_insert_thread.daemon = True
     db_insert_thread.start()
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=THREADS) as executor:
         futures = []
         for zillow_property_id in range(start, end, 1):
             future = executor.submit(
@@ -591,7 +592,8 @@ def get_zillow_range(start, end, failed, db):
                 scrape_complete_callback(zillow_property_id, end, failed)
             )
             futures.append(future)
-            time.sleep(1)
+            refresh_rate = max(0.1, 1 / THREADS**0.5)
+            time.sleep(refresh_rate)
 
     for future in concurrent.futures.as_completed(futures):
         future.result()
