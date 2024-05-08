@@ -357,7 +357,6 @@ def get_zillow(url, queue, failed):
                 if price_price == "--":
                     price_price = None
                 if not price_event and not price_price:
-                    print("skipping price insert")
                     continue
                 price_history.append(
                     {"date": price_date, "event": price_event, "price": price_price}
@@ -394,7 +393,6 @@ def get_zillow(url, queue, failed):
                 if not tax_assessment == "--":
                     property_taxes = None
                 if not tax_assessment and not property_taxes:
-                    print("skip tax insert")
                     continue
                 tax_history.append(
                     {
