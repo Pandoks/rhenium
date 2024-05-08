@@ -2,6 +2,7 @@ import os
 import pickle
 import random
 import re
+import time
 import queue
 import pprint
 import datetime
@@ -343,6 +344,8 @@ def get_zillow(url, queue, failed):
                 price_columns = price_rows.query_selector_all("td")
                 price_date = price_columns[0].query_selector("span").inner_text()
                 price_event = price_columns[1].query_selector("span").inner_text()
+                if price_event == "--":
+                    price_event = None
                 price_price = (
                     price_columns[2]
                     .query_selector("span")
@@ -351,6 +354,11 @@ def get_zillow(url, queue, failed):
                     .replace("$", "")
                     .replace(",", "")
                 )
+                if price_price == "--":
+                    price_price = None
+                if not price_event and not price_price:
+                    print("skipping price insert")
+                    continue
                 price_history.append(
                     {"date": price_date, "event": price_event, "price": price_price}
                 )
@@ -383,6 +391,11 @@ def get_zillow(url, queue, failed):
                     .replace(",", "")
                     .split(" ")[0]
                 )
+                if not tax_assessment == "--":
+                    property_taxes = None
+                if not tax_assessment and not property_taxes:
+                    print("skip tax insert")
+                    continue
                 tax_history.append(
                     {
                         "year": tax_year,
@@ -580,6 +593,7 @@ def get_zillow_range(start, end, failed, db):
                 scrape_complete_callback(zillow_property_id, end, failed)
             )
             futures.append(future)
+            time.sleep(0.5)
 
     for future in concurrent.futures.as_completed(futures):
         future.result()
